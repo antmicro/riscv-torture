@@ -35,9 +35,10 @@ make install
 cd ../..
 
 # Setup RISC-V GNU toolchain
-git clone https://github.com/riscv/riscv-gnu-toolchain.git --branch rvv-0.9.x --single-branch riscv-gnu-toolchain_rvv-0.9.x
+git clone https://github.com/ajf58/riscv-gnu-toolchain.git --branch rvv-0.9.x --single-branch riscv-gnu-toolchain_rvv-0.9.x
 cd riscv-gnu-toolchain_rvv-0.9.x
-git submodule update --init --recursive riscv-binutils riscv-gcc riscv-glibc riscv-dejagnu riscv-newlib riscv-gdb
+sed -i'' "s_url = ../_url = https://github.com/riscv/_" .gitmodules
+git submodule update --init --recursive
 mkdir build
 cd build
 ../configure --prefix=$HOME/rvv09/rvv09-tools/gnu --enable-multilib
