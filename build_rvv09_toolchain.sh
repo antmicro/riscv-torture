@@ -3,6 +3,7 @@
 # exit script if any command fails
 set -e
 set -o pipefail
+set -x
 
 # Check that git version is at least 1.7.8
 MYGIT=$(git --version)
