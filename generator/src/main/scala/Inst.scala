@@ -152,8 +152,8 @@ class Inst(opcode: String, val operands: Array[Operand])
          ).contains(opcode)
 
   def is_rvv_vmem_vect =
-    List("vlxei8.v", "vlxei16.v", "vlxei32.v", "vlxei64.v", "vlxei128.v", "vlxei256.v", "vlxei512.v", "vlxei1024.v",
-         "vsxei8.v", "vsxei16.v", "vsxei32.v", "vsxei64.v", "vsxei128.v", "vsxei256.v", "vsxei512.v", "vsxei1024.v",
+    List("vloxei8.v", "vloxei16.v", "vloxei32.v", "vloxei64.v", "vloxei128.v", "vloxei256.v", "vloxei512.v", "vloxei1024.v",
+         "vsoxei8.v", "vsoxei16.v", "vsoxei32.v", "vsoxei64.v", "vsoxei128.v", "vsoxei256.v", "vsoxei512.v", "vsoxei1024.v",
          "vsuxei8.v", "vsuxei16.v", "vsuxei32.v", "vsuxei64.v", "vsuxei128.v", "vsuxei256.v", "vsuxei512.v", "vsuxei1024.v"
          ).contains(opcode)
 
@@ -1004,24 +1004,24 @@ object VSSSEG8E512_V  extends Opcode("vssseg8e512.v")
 object VSSSEG8E1024_V extends Opcode("vssseg8e1024.v")
 
 //----------------------------------------
-object VLXEI8_V extends Opcode("vlxei8.v")
-object VLXEI16_V extends Opcode("vlxei16.v")
-object VLXEI32_V extends Opcode("vlxei32.v")
-object VLXEI64_V extends Opcode("vlxei64.v")
-object VLXEI128_V extends Opcode("vlxei128.v")
-object VLXEI256_V extends Opcode("vlxei256.v")
-object VLXEI512_V extends Opcode("vlxei512.v")
-object VLXEI1024_V extends Opcode("vlxei1024.v")
+object VLXEI8_V extends Opcode("vloxei8.v")
+object VLXEI16_V extends Opcode("vloxei16.v")
+object VLXEI32_V extends Opcode("vloxei32.v")
+object VLXEI64_V extends Opcode("vloxei64.v")
+object VLXEI128_V extends Opcode("vloxei128.v")
+object VLXEI256_V extends Opcode("vloxei256.v")
+object VLXEI512_V extends Opcode("vloxei512.v")
+object VLXEI1024_V extends Opcode("vloxei1024.v")
 
 //----------------------------------------
-object VSXEI8_V extends Opcode("vsxei8.v")
-object VSXEI16_V extends Opcode("vsxei16.v")
-object VSXEI32_V extends Opcode("vsxei32.v")
-object VSXEI64_V extends Opcode("vsxei64.v")
-object VSXEI128_V extends Opcode("vsxei128.v")
-object VSXEI256_V extends Opcode("vsxei256.v")
-object VSXEI512_V extends Opcode("vsxei512.v")
-object VSXEI1024_V extends Opcode("vsxei1024.v")
+object VSXEI8_V extends Opcode("vsoxei8.v")
+object VSXEI16_V extends Opcode("vsoxei16.v")
+object VSXEI32_V extends Opcode("vsoxei32.v")
+object VSXEI64_V extends Opcode("vsoxei64.v")
+object VSXEI128_V extends Opcode("vsoxei128.v")
+object VSXEI256_V extends Opcode("vsoxei256.v")
+object VSXEI512_V extends Opcode("vsoxei512.v")
+object VSXEI1024_V extends Opcode("vsoxei1024.v")
 
 //----------------------------------------
 object VSUXEI8_V extends Opcode("vsuxei8.v")
