@@ -214,7 +214,7 @@ object TestRunner extends App
          {s => fw.write(s+"\n") })
       fw.close()
       val fwd = new FileWriter(outName)
-      Process(Seq("cat",outName+".raw")) #| Process("spike-dasm --isa=RV64gcV_zfh_zvamo_zvlsseg --extension=hwacha") ! ProcessLogger(
+      Process(Seq("cat",outName+".raw")) #| Process("spike-dasm --isa=RV64gcV_zfh --extension=hwacha") ! ProcessLogger(
          {s => fwd.write(s+"\n") },
          {s => fwd.write(s+"\n") })
       fwd.close()
@@ -251,7 +251,7 @@ object TestRunner extends App
   {
     val debugArgs = if(debug && output) Seq("-d") else Seq()
     val simArgs   = if (hwacha) Seq("--extension=hwacha") else Seq()
-    val simRArgs  =  if (rvv) Seq("--isa=RV64gcV_zfh_zvamo_zvlsseg") else Seq()
+    val simRArgs  =  if (rvv) Seq("--isa=RV64gcV_zfh") else Seq()
  
     runSim("spike", debugArgs++simRArgs++simArgs , bin+".spike.sig", output, bin+".spike.out", Seq(), bin)
   }
