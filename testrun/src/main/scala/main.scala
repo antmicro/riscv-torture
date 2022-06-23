@@ -76,17 +76,18 @@ object TestRunner extends App
     val dump = (config.getProperty("torture.testrun.dump", "false").toLowerCase == "true")
     val seek = (config.getProperty("torture.testrun.seek", "true").toLowerCase == "true")
     hwacha = (config.getProperty("torture.testrun.vec", "true").toLowerCase == "true")
+    val use_64bit_opcodes = (config.getProperty("torture.generator.64bit_opcodes", "true").toLowerCase == "true")
     
     // RISC-V Vector functionality added
     rvv = (config.getProperty("torture.testrun.rvv", "true").toLowerCase == "true")
 
     // Figure out which binary file to test
     val finalBinName = testAsmName match {
-      case Some(asmName) => compileAsmToBin(asmName)
+      case Some(asmName) => compileAsmToBin(asmName, use_64bit_opcodes)
       case None => {
         val gen = generator.Generator
         val newAsmName = gen.generate(confFileName, "test")
-        compileAsmToBin(newAsmName)
+        compileAsmToBin(newAsmName, use_64bit_opcodes)
       }
     }
 
@@ -130,15 +131,15 @@ object TestRunner extends App
           println("///////////////////////////////////////////////////////")
           if(doSeek || seek) 
           {
-            val failName = seekOutFailureBinary(binName, bad_sims, true, output, dumpWaveform || dump)
+            val failName = seekOutFailureBinary(binName, bad_sims, true, output, dumpWaveform || dump, use_64bit_opcodes)
             println("///////////////////////////////////////////////////////")
             println("//  Failing pseg identified. Binary at " + failName)
             println("///////////////////////////////////////////////////////")
-            dumpFromBin(failName)
+            dumpFromBin(failName, use_64bit_opcodes)
             (true, Some(failName.split("/")))
           } else 
           {
-            dumpFromBin(binName)
+            dumpFromBin(binName, use_64bit_opcodes)
             (true, Some(binName.split("/")))
           }
         } else 
@@ -156,7 +157,7 @@ object TestRunner extends App
     }
   }
 
-  def compileAsmToBin(asmFileName: String): Option[String] = {
+  def compileAsmToBin(asmFileName: String, use_64bit_opcodes: Boolean): Option[String] = {
     assert(asmFileName.endsWith(".S"), println("Filename does not end in .S"))
     val binFileName = asmFileName.dropRight(2)
     var process = ""
@@ -165,21 +166,24 @@ object TestRunner extends App
       println("Virtual mode")
       val entropy = (new Random()).nextLong()
       println("entropy: " + entropy)
-      process = "riscv64-unknown-elf-gcc -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -Wa,-march=rv64gcvxhwacha -DENTROPY=" + entropy + " -std=gnu99 -O2 -I./env/v -I./macros/scalar -T./env/v/link.ld ./env/v/entry.S ./env/v/vm.c " + asmFileName + " -lc -o " + binFileName
+      val compiler = if (use_64bit_opcodes) "riscv64-unknown-elf-gcc" else "riscv32-unknown-elf-gcc"
+      process = compiler + " -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -Wa,-march=rv32gcv -Wl,-g -DENTROPY=" + entropy + " -std=gnu99 -O2 -I./env/v -I./macros/scalar -T./env/v/link.ld ./env/v/entry.S ./env/v/vm.c " + asmFileName + " -lc -o " + binFileName
     }
     else
     {
       println("Physical mode")
-      process = "riscv64-unknown-elf-gcc -nostdlib -nostartfiles -Wa,-march=rv64gcvxhwacha -I./env/p -T./env/p/link.ld " + asmFileName + " -o " + binFileName
+      val compiler = if (use_64bit_opcodes) "riscv64-unknown-elf-gcc" else "riscv32-unknown-elf-gcc"
+      process = compiler + " -nostdlib -nostartfiles -Wa,-march=rv32gcv -Wl,-g -I./env/p -T./env/p/link.ld " + asmFileName + " -o " + binFileName
     }
     val pb = Process(process)
     val exitCode = pb.!
     if (exitCode == 0) Some(binFileName) else None
   }
 
-  def dumpFromBin(binFileName: String): Option[String] = {
+  def dumpFromBin(binFileName: String, use_64bit_opcodes: Boolean): Option[String] = {
     val dumpFileName = binFileName + ".dump"
-    val pd = Process("riscv64-unknown-elf-objdump --disassemble-all --section=.text --section=.data --section=.bss " + binFileName)
+    val objdump = if (use_64bit_opcodes) "riscv64-unknown-elf-objdump" else "riscv32-unknown-elf-objdump"
+    val pd = Process(objdump + " --disassemble-all --section=.text --section=.data --section=.bss " + binFileName)
     val dump = pd.!!
     val fw = new FileWriter(dumpFileName)
     fw.write(dump)
@@ -283,7 +287,7 @@ object TestRunner extends App
     }
   }
 
-  def seekOutFailureBinary(bin: String, simulators: Seq[(String, (String, Boolean, Boolean, Boolean) => String)], debug: Boolean, output: Boolean, dumpWaveform: Boolean): String =
+  def seekOutFailureBinary(bin: String, simulators: Seq[(String, (String, Boolean, Boolean, Boolean) => String)], debug: Boolean, output: Boolean, dumpWaveform: Boolean, use_64bit_opcodes: Boolean): String =
   {
     // Find failing asm file
     val source = scala.io.Source.fromFile(bin+".S")
@@ -312,7 +316,7 @@ object TestRunner extends App
       fw.close()
 
       // Compile new asm and test on sims
-      val newBinName = compileAsmToBin(newAsmName)
+      val newBinName = compileAsmToBin(newAsmName, use_64bit_opcodes)
       newBinName match {
         case Some(b) => {
           val res = runSimulators(b, simulators, debug, output, dumpWaveform)
@@ -334,7 +338,7 @@ object TestRunner extends App
     }
   }
 
-  def seekOutFailure(bin: String, simulators: Seq[(String, (String, Boolean, Boolean, Boolean) => String)], debug: Boolean, output: Boolean, dumpWaveform: Boolean): String = {
+  def seekOutFailure(bin: String, simulators: Seq[(String, (String, Boolean, Boolean, Boolean) => String)], debug: Boolean, output: Boolean, dumpWaveform: Boolean, use_64bit_opcodes: Boolean): String = {
     // Find failing asm file
     val source = scala.io.Source.fromFile(bin+".S")
     val lines = source.mkString
@@ -358,7 +362,7 @@ object TestRunner extends App
       fw.close()
 
       // Compile new asm and test on sims
-      val newBinName = compileAsmToBin(newAsmName)
+      val newBinName = compileAsmToBin(newAsmName, use_64bit_opcodes)
       newBinName match {
         case Some(b) => {
         val res = runSimulators(b, simulators, debug, output, dumpWaveform)

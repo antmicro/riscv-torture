@@ -84,9 +84,9 @@ trait PoolsMaster extends HWRegPool
   }
 }
 
-class XRegsPool extends ScalarRegPool
+class XRegsPool(use_64bit_opcodes: Boolean) extends ScalarRegPool
 {
-  val (name, regname, ldinst, stinst) = ("xreg", "reg_x", "ld", "sd")
+  val (name, regname, ldinst, stinst) = ("xreg", "reg_x", if (use_64bit_opcodes) "ld" else "lw", if (use_64bit_opcodes) "sd" else "sw")
 
   hwregs += new HWReg("x0", true, false)
   for (i <- 1 to 31)
@@ -282,37 +282,38 @@ class VARegsPool(reg_nums: Array[Int] = (0 to 31).toArray) extends HWRegPool
 }
 
 // RISC-V Vector Register Pool
-class RISCV_VRegsPool(reg_nums: Array[Int] = (0 to 31).toArray) extends HWRegPool
+class RISCV_VRegsPool(use_64bit_opcodes: Boolean, reg_nums: Array[Int] = (0 to 31).toArray) extends HWRegPool
 {
   for (i <- reg_nums)
     hwregs += new HWReg("v" + i.toString(), true, true)
 
   def init_regs(lmul:String) = 
   {
+    var loadInstr = if (use_64bit_opcodes) "ld" else "lw"
     var s = "rvvreg_init:\n"+"\tla x1, rvvreg_init_data\n"
     for ((i, curreg) <- reg_nums.zip(hwregs)) 
     {
       if(lmul == "1" || lmul == "f2" || lmul == "f4" || lmul == "f8")
       {
-        s += "\tld" + " x2, " + 8*i + "(x1)\n"
+        s += "\t" + loadInstr + " x2, " + 8*i + "(x1)\n"
         s += "\tvmv.v.x"+ " " + curreg + ", x2\n"
       }
       if(lmul== "2")
       	if(i%2==0)
         {
-          s += "\tld" + " x2, " + 8*i + "(x1)\n"
+          s += "\t" + loadInstr + " x2, " + 8*i + "(x1)\n"
           s += "\tvmv.v.x"+ " " + curreg + ", x2\n"
         }
       if(lmul== "4")
       	if(i%4==0)
       	{
-          s += "\tld" + " x2, " + 8*i + "(x1)\n"
+          s += "\t" + loadInstr + " x2, " + 8*i + "(x1)\n"
           s += "\tvmv.v.x"+ " " + curreg + ", x2\n"
         }
       if(lmul== "8")
       	if(i%8==0)
       	{
-          s += "\tld" + " x2, " + 8*i + "(x1)\n"
+          s += "\t" + loadInstr + " x2, " + 8*i + "(x1)\n"
           s += "\tvmv.v.x"+ " " + curreg + ", x2\n"
         }
     }

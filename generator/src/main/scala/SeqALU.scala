@@ -3,7 +3,7 @@ package torture
 import scala.collection.mutable.ArrayBuffer
 import Rand._
 
-class SeqALU(xregs: HWRegPool, use_mul: Boolean, use_div: Boolean) extends InstSeq //TODO: better configuration
+class SeqALU(xregs: HWRegPool, use_mul: Boolean, use_div: Boolean, use_64bit_opcodes: Boolean) extends InstSeq //TODO: better configuration
 {
   override val seqname = "xalu"
   def seq_immfn(op: Opcode, immfn: () => Int) = () =>
@@ -60,25 +60,46 @@ class SeqALU(xregs: HWRegPool, use_mul: Boolean, use_div: Boolean) extends InstS
 
   candidates += seq_immfn(LUI, rand_bigimm)
   candidates += seq_src1_immfn(ADDI, rand_imm)
-  candidates += seq_src1_immfn(SLLI, rand_shamt)
+  candidates += seq_src1_immfn(SLLI, if (use_64bit_opcodes) rand_shamt else rand_shamtw)
   candidates += seq_src1_immfn(SLTI, rand_imm)
   candidates += seq_src1_immfn(SLTIU, rand_imm)
   candidates += seq_src1_immfn(XORI, rand_imm)
-  candidates += seq_src1_immfn(SRLI, rand_shamt)
-  candidates += seq_src1_immfn(SRAI, rand_shamt)
+  candidates += seq_src1_immfn(SRLI, if (use_64bit_opcodes) rand_shamt else rand_shamtw)
+  candidates += seq_src1_immfn(SRAI, if (use_64bit_opcodes) rand_shamt else rand_shamtw)
   candidates += seq_src1_immfn(ORI, rand_imm)
   candidates += seq_src1_immfn(ANDI, rand_imm)
-  candidates += seq_src1_immfn(ADDIW, rand_imm)
-  candidates += seq_src1_immfn(SLLIW, rand_shamtw)
-  candidates += seq_src1_immfn(SRLIW, rand_shamtw)
-  candidates += seq_src1_immfn(SRAIW, rand_shamtw)
+ 
+  if (use_64bit_opcodes)
+  {
+      candidates += seq_src1_immfn(ADDIW, rand_imm)
+      candidates += seq_src1_immfn(SLLIW, rand_shamtw)
+      candidates += seq_src1_immfn(SRLIW, rand_shamtw)
+      candidates += seq_src1_immfn(SRAIW, rand_shamtw)
+  }
 
   val oplist = new ArrayBuffer[Opcode]
 
   oplist += (ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND)
-  oplist += (ADDW, SUBW, SLLW, SRLW, SRAW)
-  if (use_mul) oplist += (MUL, MULH, MULHSU, MULHU, MULW)
-  if (use_div) oplist += (DIV, DIVU, REM, REMU, DIVW, DIVUW, REMW, REMUW)
+  if (use_64bit_opcodes)
+  {
+      oplist += (ADDW, SUBW, SLLW, SRLW, SRAW)
+  }
+  if (use_mul)
+  {
+      oplist += (MUL, MULH, MULHSU, MULHU)
+      if (use_64bit_opcodes)
+      {
+          oplist += (MULW)
+      }
+  }
+  if (use_div)
+  {
+      oplist += (DIV, DIVU, REM, REMU)
+      if (use_64bit_opcodes)
+      {
+          oplist += (DIVW, DIVUW, REMW, REMUW)
+      }
+  }
 
   for (op <- oplist)
   {
