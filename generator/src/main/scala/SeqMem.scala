@@ -83,8 +83,8 @@ class SeqMem(xregs: HWRegPool, mem: Mem, use_amo: Boolean, use_64bit_opcodes: Bo
     val s_imm = rand_imm()
     val l_imm = rand_imm()
 
-    val (lop, l_addr) = AccessType.getRandOpAndAddr(dw_addr, is_store=false)
-    val (sop, s_addr) = AccessType.getRandOpAndAddr(dw_addr, is_store=true)
+    val (lop, l_addr) = AccessType.getRandOpAndAddr(dw_addr, is_store=false, use_64bit_opcodes)
+    val (sop, s_addr) = AccessType.getRandOpAndAddr(dw_addr, is_store=true, use_64bit_opcodes)
     //println("dwaddr: " + dw_addr + ",sop: " + sop.name  + ",lop: " + lop.name + " saddr: " + s_addr + ", laddr: " + l_addr)
 
     insts += LA(l_reg_addr, BaseImm(mem.toString, l_addr-l_imm))
