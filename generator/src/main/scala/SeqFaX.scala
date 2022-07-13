@@ -3,7 +3,7 @@ package torture
 import scala.collection.mutable.ArrayBuffer
 import Rand._
 
-class SeqFaX(xregs: HWRegPool, fregs_s: HWRegPool, fregs_d: HWRegPool use_64bit_opcodes: Boolean) extends InstSeq
+class SeqFaX(xregs: HWRegPool, fregs_s: HWRegPool, fregs_d: HWRegPool, use_64bit_opcodes: Boolean) extends InstSeq
 {
   override val seqname = "fax"
   def seq_src1(op: Opcode, dst_pool: HWRegPool, src_pool: HWRegPool) = () =>
