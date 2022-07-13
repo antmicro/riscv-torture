@@ -86,7 +86,7 @@ trait PoolsMaster extends HWRegPool
 
 class XRegsPool extends ScalarRegPool
 {
-  val (name, regname, ldinst, stinst) = ("xreg", "reg_x", "ld", "sd")
+  val (name, regname, ldinst, stinst) = ("xreg", "reg_x", "lw", "sw")
 
   hwregs += new HWReg("x0", true, false)
   for (i <- 1 to 31)
@@ -294,25 +294,25 @@ class RISCV_VRegsPool(reg_nums: Array[Int] = (0 to 31).toArray) extends HWRegPoo
     {
       if(lmul == "1" || lmul == "f2" || lmul == "f4" || lmul == "f8")
       {
-        s += "\tld" + " x2, " + 8*i + "(x1)\n"
+        s += "\tlw" + " x2, " + 8*i + "(x1)\n"
         s += "\tvmv.v.x"+ " " + curreg + ", x2\n"
       }
       if(lmul== "2")
       	if(i%2==0)
         {
-          s += "\tld" + " x2, " + 8*i + "(x1)\n"
+          s += "\tlw" + " x2, " + 8*i + "(x1)\n"
           s += "\tvmv.v.x"+ " " + curreg + ", x2\n"
         }
       if(lmul== "4")
       	if(i%4==0)
       	{
-          s += "\tld" + " x2, " + 8*i + "(x1)\n"
+          s += "\tlw" + " x2, " + 8*i + "(x1)\n"
           s += "\tvmv.v.x"+ " " + curreg + ", x2\n"
         }
       if(lmul== "8")
       	if(i%8==0)
       	{
-          s += "\tld" + " x2, " + 8*i + "(x1)\n"
+          s += "\tlw" + " x2, " + 8*i + "(x1)\n"
           s += "\tvmv.v.x"+ " " + curreg + ", x2\n"
         }
     }
