@@ -165,12 +165,12 @@ object TestRunner extends App
       println("Virtual mode")
       val entropy = (new Random()).nextLong()
       println("entropy: " + entropy)
-      process = "riscv64-unknown-elf-gcc -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -Wa,-march=rv64gcv -Wl,-g -DENTROPY=" + entropy + " -std=gnu99 -O2 -I./env/v -I./macros/scalar -T./env/v/link.ld ./env/v/entry.S ./env/v/vm.c " + asmFileName + " -lc -o " + binFileName
+      process = "riscv32-unknown-elf-gcc -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -Wa,-march=rv32gcv -Wl,-g -DENTROPY=" + entropy + " -std=gnu99 -O2 -I./env/v -I./macros/scalar -T./env/v/link.ld ./env/v/entry.S ./env/v/vm.c " + asmFileName + " -lc -o " + binFileName
     }
     else
     {
       println("Physical mode")
-      process = "riscv64-unknown-elf-gcc -nostdlib -nostartfiles -Wa,-march=rv64gcv -Wl,-g -I./env/p -T./env/p/link.ld " + asmFileName + " -o " + binFileName
+      process = "riscv32-unknown-elf-gcc -nostdlib -nostartfiles -Wa,-march=rv32gcv -Wl,-g -I./env/p -T./env/p/link.ld " + asmFileName + " -o " + binFileName
     }
     val pb = Process(process)
     val exitCode = pb.!
@@ -179,7 +179,7 @@ object TestRunner extends App
 
   def dumpFromBin(binFileName: String): Option[String] = {
     val dumpFileName = binFileName + ".dump"
-    val pd = Process("riscv64-unknown-elf-objdump --disassemble-all --section=.text --section=.data --section=.bss " + binFileName)
+    val pd = Process("riscv32-unknown-elf-objdump --disassemble-all --section=.text --section=.data --section=.bss " + binFileName)
     val dump = pd.!!
     val fw = new FileWriter(dumpFileName)
     fw.write(dump)
