@@ -631,7 +631,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean)
     assert(!(using_rvv && using_vec), "RISC-V Vector and Hwacha Vector instructions can not be used simultaneously")
     "\n" +
     (if (using_vec) "RVTEST_RV64UV\n"
-     else if (using_rvv) "RVTEST_RV64UV\n"
+     else if (using_rvv) "RVTEST_RV32UV\n"
      else if (using_fpu) "RVTEST_RV64UF\n"
      else "RVTEST_RV64U\n") +
     "RVTEST_CODE_BEGIN\n" +
