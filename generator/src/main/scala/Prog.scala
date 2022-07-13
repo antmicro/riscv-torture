@@ -513,7 +513,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean)
       "xalu" -> (() => new SeqALU(xregs, use_mul, use_div, false)), //true means use_divider, TODO: make better
       "fgen" -> (() => new SeqFPU(fregs_s, fregs_d)),
       "fpmem" -> (() => new SeqFPMem(xregs, fregs_s, fregs_d, core_memory)),
-      "fax" -> (() => new SeqFaX(xregs, fregs_s, fregs_d)),
+      "fax" -> (() => new SeqFaX(xregs, fregs_s, fregs_d, false)),
       "fdiv" -> (() => new SeqFDiv(fregs_s, fregs_d)),
       "vec" -> (() => new SeqVec(xregs, vxregs, vpregs, vsregs, varegs, used_vl, veccfg)),
       "rvv" -> (() => new SeqRVV(rvvregs, xregs, fregs_s, fregs_d, core_memory, rv_vmem_unit, rv_vmem_const, rv_vmem_vect, rv_vmem_zvlsseg, rv_vinteger, rv_vfixed, vfloat, rv_vreduce, rv_vmask, rv_vpermute, rv_vamo, wide, narrow, lmul, sew, nr, nf, mask, gen_config, multi_config)))       // Added RISC-V Vector functionality
