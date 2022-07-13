@@ -66,7 +66,7 @@ class SeqMem(xregs: HWRegPool, mem: Mem, use_amo: Boolean, use_64bit_opcodes: Bo
              else if (typ == ubyte)  (LBU, dw_addr + rand_addr_b(8))
              else if (typ == hword)  (LH,  dw_addr + rand_addr_h(8))
              else if (typ == uhword) (LHU, dw_addr + rand_addr_h(8))
-             else if (typ == word)   (LW,  dw_addr + rand_addr_w(8))
+             else if (typ == word || (use_64bit_opcodes && typ == uword))   (LW,  dw_addr + rand_addr_w(8))
              else if (typ == uword)  (LWU, dw_addr + rand_addr_w(8))
              else                    (LD,  dw_addr)
           }
