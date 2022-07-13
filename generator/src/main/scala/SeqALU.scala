@@ -60,12 +60,12 @@ class SeqALU(xregs: HWRegPool, use_mul: Boolean, use_div: Boolean, use_64bit_opc
 
   candidates += seq_immfn(LUI, rand_bigimm)
   candidates += seq_src1_immfn(ADDI, rand_imm)
-  candidates += seq_src1_immfn(SLLI, rand_shamt)
+  candidates += seq_src1_immfn(SLLI, rand_shamtw)
   candidates += seq_src1_immfn(SLTI, rand_imm)
   candidates += seq_src1_immfn(SLTIU, rand_imm)
   candidates += seq_src1_immfn(XORI, rand_imm)
-  candidates += seq_src1_immfn(SRLI, rand_shamt)
-  candidates += seq_src1_immfn(SRAI, rand_shamt)
+  candidates += seq_src1_immfn(SRLI, rand_shamtw)
+  candidates += seq_src1_immfn(SRAI, rand_shamtw)
   candidates += seq_src1_immfn(ORI, rand_imm)
   candidates += seq_src1_immfn(ANDI, rand_imm)
  
