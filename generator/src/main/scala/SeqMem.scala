@@ -111,9 +111,9 @@ class SeqMem(xregs: HWRegPool, mem: Mem, use_amo: Boolean, use_64bit_opcodes: Bo
   candidates += seq_load_addrfn(LH, rand_addr_h)
   candidates += seq_load_addrfn(LHU, rand_addr_h)
   candidates += seq_load_addrfn(LW, rand_addr_w)
-  candidates += seq_load_addrfn(LWU, rand_addr_w)
   if (use_64bit_opcodes)
   {
+    candidates += seq_load_addrfn(LWU, rand_addr_w)
     candidates += seq_load_addrfn(LD, rand_addr_d)
   }
 
