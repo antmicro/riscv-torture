@@ -19,9 +19,11 @@ extra_files =
 # Build rules
 #--------------------------------------------------------------------
 
-RISCV_GCC = riscv64-unknown-elf-gcc
-RISCV_GCC_OPTS = -nostdlib -nostartfiles -Wa,-march=RVIMAFDXhwacha
-RISCV_OBJDUMP = riscv64-unknown-elf-objdump --disassemble-all --section=.text --section=.data --section=.bss
+TOOLCHAIN_PREFIX=riscv64-unknown-elf-
+
+RISCV_GCC = $(TOOLCHAIN_PREFIX)gcc
+RISCV_GCC_OPTS = -nostdlib -nostartfiles -Wa,-march=RVIMAFDV -Wl,-g
+RISCV_OBJDUMP = $(TOOLCHAIN_PREFIX)objdump --disassemble-all --section=.text --section=.data --section=.bss
 RISCV_SIM = spike --extension=hwacha
 
 #------------------------------------------------------------

@@ -19,7 +19,7 @@ class SeqSeq(vregs: HWRegPool, pregs: HWRegPool, def_preg: Reg, sregs: HWRegPool
 
   val name_to_seq = Map(
     "vmem" -> (() => new SeqVMem(xregs, vregs, pregs, def_preg, sregs, aregs, mem.asInstanceOf[VMem], vl, use_amo,use_seg, use_stride, pred_mem)),
-    "valu" -> (() => new SeqVALU(vregs, pregs, def_preg, sregs, use_mul, use_div, use_mix, use_fpu, use_fma, use_fcvt, use_fdiv, pred_alu)), // TODO: Clean up
+    "valu" -> (() => new SeqVALU(vregs, pregs, def_preg, sregs, use_mul, use_div, use_mix, use_fpu, use_fma, use_fcvt, use_fdiv, pred_alu, false)), // TODO: Clean up
     "vpop" -> (() => new SeqVPop(vregs, pregs, def_preg, sregs)),
     "vonly" -> (() => new SeqVOnly(vregs, pregs, sregs)))
 

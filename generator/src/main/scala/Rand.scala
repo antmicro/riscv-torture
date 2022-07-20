@@ -28,6 +28,7 @@ object Rand
     low + ((Random.nextInt(span) >> 5) << 5)
   }
 
+  var vl = 32
   var lmul = "1"
   var sew =  32
   var nf = 1
@@ -57,16 +58,27 @@ object Rand
 		nr = rand_pick(list_nr)
 		nr
 	}
-	def configure(vlen: Int): (String, Int, Int, Int) = {
+	def configure(vl: Int, vlen: Int): (String, Int, Int, Int) = 
+  {
 		val map_lmul = Map("8"->8.toFloat,"4"->4.toFloat, "2"->2.toFloat, "1"->1.toFloat, "f2"->(0.5).toFloat,
 			               "f4"->(0.25).toFloat, "f8"->(0.125).toFloat)
 		val lmul = rand_lmul()
 		var sew = rand_sew()
 		val nr = rand_nr()
 		val nf = rand_nf()
+    this.vl = vl
 		while((map_lmul(lmul)*(vlen.toFloat/sew.toFloat))<1 || sew > vlen){sew = rand_sew()}
 		return (lmul, sew, nr, nf)
 	}
+
+  def configure(vl: Int, lmul: String, sew: Int, nr: Int, nf: Int) = 
+  {
+    this.vl = vl
+    this.lmul = lmul
+    this.sew = sew
+    this.nr = nr
+    this.nf = nf
+  }
 
   def rand_mask(): Boolean =
     return Random.nextBoolean()
@@ -335,14 +347,41 @@ object Rand
   def rand_addr_w(memsize: Int)     = rand_range(0, memsize-1) & ~3
   def rand_addr_d(memsize: Int)     = rand_range(0, memsize-1) & ~7
 
-  def rand_addr_b_rvv(memsize: Int)    = rand_range_multiple8(0, memsize-1)
-  def rand_addr_h_rvv(memsize: Int)    = rand_range_multiple8(0, memsize-1) & ~1
-  def rand_addr_w_rvv(memsize: Int)    = rand_range_multiple8(0, memsize-1) & ~3
-  def rand_addr_d_rvv(memsize: Int)    = rand_range_multiple8(0, memsize-1) & ~7
-  def rand_addr_128_rvv(memsize: Int)  = rand_range_multiple8(0, memsize-1) & ~15
-  def rand_addr_256_rvv(memsize: Int)  = rand_range_multiple8(0, memsize-1) & ~31
-  def rand_addr_512_rvv(memsize: Int)  = rand_range_multiple8(0, memsize-1) & ~63
-  def rand_addr_1024_rvv(memsize: Int) = rand_range_multiple8(0, memsize-1) & ~127
+
+  def rand_addr_rvv(memsize: Int): Int =
+  {
+    val min_size = rand_min_memory_size_rvv()    
+    assert(min_size < memsize, println(s"Memory size should be larger than $min_size (minimal value required to perform vector instructions)."))
+    return rand_range_multiple8(0, memsize-1-min_size)
+  }
+  def rand_min_memory_size_rvv(): Int =
+  {
+    val max_stride = 8
+    val max_sew = 64
+    
+    var lmul_int = 1
+    if(lmul=="2")
+    {
+      lmul_int = 1
+    }
+    else if(lmul=="4")
+    {
+      lmul_int = 4
+    }
+    else if(lmul=="8")
+    {
+      lmul_int = 8
+    }
+    return vl*lmul_int*nf*max_sew/8*max_stride
+  }
+  def rand_addr_b_rvv(memsize: Int)    = rand_addr_rvv(memsize)
+  def rand_addr_h_rvv(memsize: Int)    = rand_addr_rvv(memsize) & ~1
+  def rand_addr_w_rvv(memsize: Int)    = rand_addr_rvv(memsize) & ~3
+  def rand_addr_d_rvv(memsize: Int)    = rand_addr_rvv(memsize) & ~7
+  def rand_addr_128_rvv(memsize: Int)  = rand_addr_rvv(memsize) & ~15
+  def rand_addr_256_rvv(memsize: Int)  = rand_addr_rvv(memsize) & ~31
+  def rand_addr_512_rvv(memsize: Int)  = rand_addr_rvv(memsize) & ~63
+  def rand_addr_1024_rvv(memsize: Int) = rand_addr_rvv(memsize) & ~127
 
   def rand_filter(rand: () => Int, filter: (Int) => Boolean) =
   {

@@ -3,7 +3,7 @@ package torture
 import scala.collection.mutable.ArrayBuffer
 import Rand._
 
-class SeqVALU(vregs: HWRegPool, pregs: HWRegPool, def_preg: Reg, sregs: HWRegPool, use_mul: Boolean, use_div: Boolean, use_mix: Boolean, use_fpu: Boolean, use_fma: Boolean, use_fcvt: Boolean, use_fdiv: Boolean, use_pred: Boolean) extends VFInstSeq //TODO: better configuration
+class SeqVALU(vregs: HWRegPool, pregs: HWRegPool, def_preg: Reg, sregs: HWRegPool, use_mul: Boolean, use_div: Boolean, use_mix: Boolean, use_fpu: Boolean, use_fma: Boolean, use_fcvt: Boolean, use_fdiv: Boolean, use_pred: Boolean, use_64bit_opcodes: Boolean) extends VFInstSeq //TODO: better configuration
 {
   override val seqname = "valu"
   val pred = if(use_pred) PredReg(reg_read_any(pregs), false)
@@ -43,9 +43,29 @@ class SeqVALU(vregs: HWRegPool, pregs: HWRegPool, def_preg: Reg, sregs: HWRegPoo
   val oplist3 = new ArrayBuffer[Opcode]
 
   oplist2 += (VADD, VSUB, VSLL, VXOR, VSRL, VSRA, VOR, VAND)
-  oplist2 += (VADDW, VSUBW, VSLLW, VSRLW, VSRAW)
-  if (use_mul) oplist2 += (VMUL, VMULH, VMULHSU, VMULHU, VMULW)
-  if (use_div) oplist2 += (VDIV, VDIVU, VREM, VREMU, VDIVW, VDIVUW, VREMW, VREMUW)
+
+  if (use_64bit_opcodes)
+  {
+    oplist2 += (VADDW, VSUBW, VSLLW, VSRLW, VSRAW)
+  }
+  
+  if (use_mul)
+  {
+    oplist2 += (VMUL, VMULH, VMULHSU, VMULHU)
+    if (use_64bit_opcodes)
+    {
+      oplist2 += (VMULW)
+    }
+  }
+
+  if (use_div)
+  {
+    oplist2 += (VDIV, VDIVU, VREM, VREMU, VDIVW, VDIVUW, VREMW, VREMUW)
+    if (use_64bit_opcodes)
+    {
+      oplist2 += (VDIVW, VDIVUW, VREMW, VREMUW)
+    }
+  }
   if (use_fpu)
   {
     oplist2 += (VFADD_S, VFSUB_S, VFMUL_S, VFMIN_S, VFMAX_S,
