@@ -20,7 +20,7 @@ GITCMT := $(subst $(space),$(gitopt),$(COMMIT))
 cnight rnight crnight csuite rsuite \
 
 gen:
-	$(SBT) 'generator/run $(OPTIONS)'
+	$(SBT) 'generator/run -C $(CFG) $(OPTIONS)'
 
 csuite:
 	for i in `ls $(SUITE) | grep .S` ; do echo $$i ; \
@@ -41,35 +41,35 @@ crsuite:
 	rm $(SUITE)/tes*[!.S]
 
 igentest:
-	$(SBT) 'testrun/run'
+	$(SBT) 'testrun/run -C $(CFG)'
 
 cgentest:
-	$(SBT) 'testrun/run -c $(C_SIM) $(OPTIONS)'
+	$(SBT) 'testrun/run -C $(CFG) -c $(C_SIM) $(OPTIONS)'
 
 rgentest:
-	$(SBT) 'testrun/run -r $(R_SIM) $(OPTIONS)'
+	$(SBT) 'testrun/run -C $(CFG) -r $(R_SIM) $(OPTIONS)'
 
 crgentest:
-	$(SBT) 'testrun/run -c $(C_SIM) -r $(R_SIM) $(OPTIONS)'
+	$(SBT) 'testrun/run -C $(CFG) -c $(C_SIM) -r $(R_SIM) $(OPTIONS)'
 
 itest:
-	$(SBT) 'testrun/run -a $(TEST) $(OPTIONS)'
+	$(SBT) 'testrun/run -C $(CFG) -a $(TEST) $(OPTIONS)'
 
 ctest:
-	$(SBT) 'testrun/run -c $(C_SIM) -a $(TEST) $(OPTIONS)'
+	$(SBT) 'testrun/run -C $(CFG) -c $(C_SIM) -a $(TEST) $(OPTIONS)'
 
 rtest:
-	$(SBT) 'testrun/run -r $(R_SIM) -a $(TEST) $(OPTIONS)'
+	$(SBT) 'testrun/run -C $(CFG) -r $(R_SIM) -a $(TEST) $(OPTIONS)'
 
 crtest:
-	$(SBT) 'testrun/run -c $(C_SIM) -r $(R_SIM) -a $(TEST) $(OPTIONS)'
+	$(SBT) 'testrun/run -C $(CFG) -c $(C_SIM) -r $(R_SIM) -a $(TEST) $(OPTIONS)'
 
 cnight:
-	$(SBT) 'overnight/run -c $(C_SIM) -g $(COMMIT) $(OPTIONS)'
+	$(SBT) 'overnight/run -C $(CFG) -c $(C_SIM) -g $(COMMIT) $(OPTIONS)'
 
 rnight:
-	$(SBT) 'overnight/run -r $(R_SIM) -g $(COMMIT) $(OPTIONS)'
+	$(SBT) 'overnight/run -C $(CFG) -r $(R_SIM) -g $(COMMIT) $(OPTIONS)'
 
 crnight:
-	$(SBT) 'overnight/run -c $(C_SIM) -r $(R_SIM) -g $(COMMIT) $(OPTIONS)'
+	$(SBT) 'overnight/run -C $(CFG) -c $(C_SIM) -r $(R_SIM) -g $(COMMIT) $(OPTIONS)'
 
