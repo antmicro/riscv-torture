@@ -3,7 +3,7 @@ package torture
 import scala.collection.mutable.ArrayBuffer
 import Rand._
 
-class SeqMem(xregs: HWRegPool, mem: Mem, use_amo: Boolean) extends InstSeq
+class SeqMem(xregs: HWRegPool, mem: Mem, use_amo: Boolean, use_64bit_opcodes: Boolean) extends InstSeq
 {
   override val seqname = "xmem"
   def seq_load_addrfn(op: Opcode, addrfn: (Int) => Int) = () =>
@@ -49,9 +49,10 @@ class SeqMem(xregs: HWRegPool, mem: Mem, use_amo: Boolean) extends InstSeq
        type AccessType = Value
        val byte, ubyte, hword, uhword, word, uword, dword = Value
 
-       def getRandOpAndAddr (dw_addr: Int, is_store: Boolean): (Opcode, Int) =
+       def getRandOpAndAddr (dw_addr: Int, is_store: Boolean, use_64bit_opcodes: Boolean): (Opcode, Int) =
        {
-          val typ = AccessType.values.toIndexedSeq(rand_range(0,6))
+          val typ = AccessType.values.toIndexedSeq(rand_range(0, if (use_64bit_opcodes) 6 else 5))
+          
           if (is_store)
           {
              if      (typ == byte  || typ ==ubyte)  (SB, dw_addr + rand_addr_b(8))
@@ -65,7 +66,7 @@ class SeqMem(xregs: HWRegPool, mem: Mem, use_amo: Boolean) extends InstSeq
              else if (typ == ubyte)  (LBU, dw_addr + rand_addr_b(8))
              else if (typ == hword)  (LH,  dw_addr + rand_addr_h(8))
              else if (typ == uhword) (LHU, dw_addr + rand_addr_h(8))
-             else if (typ == word)   (LW,  dw_addr + rand_addr_w(8))
+             else if (typ == word || (use_64bit_opcodes == false && typ == uword))   (LW,  dw_addr + rand_addr_w(8))
              else if (typ == uword)  (LWU, dw_addr + rand_addr_w(8))
              else                    (LD,  dw_addr)
           }
@@ -82,8 +83,8 @@ class SeqMem(xregs: HWRegPool, mem: Mem, use_amo: Boolean) extends InstSeq
     val s_imm = rand_imm()
     val l_imm = rand_imm()
 
-    val (lop, l_addr) = AccessType.getRandOpAndAddr(dw_addr, is_store=false)
-    val (sop, s_addr) = AccessType.getRandOpAndAddr(dw_addr, is_store=true)
+    val (lop, l_addr) = AccessType.getRandOpAndAddr(dw_addr, is_store=false, use_64bit_opcodes)
+    val (sop, s_addr) = AccessType.getRandOpAndAddr(dw_addr, is_store=true, use_64bit_opcodes)
     //println("dwaddr: " + dw_addr + ",sop: " + sop.name  + ",lop: " + lop.name + " saddr: " + s_addr + ", laddr: " + l_addr)
 
     insts += LA(l_reg_addr, BaseImm(mem.toString, l_addr-l_imm))
@@ -110,13 +111,19 @@ class SeqMem(xregs: HWRegPool, mem: Mem, use_amo: Boolean) extends InstSeq
   candidates += seq_load_addrfn(LH, rand_addr_h)
   candidates += seq_load_addrfn(LHU, rand_addr_h)
   candidates += seq_load_addrfn(LW, rand_addr_w)
-  candidates += seq_load_addrfn(LWU, rand_addr_w)
-  candidates += seq_load_addrfn(LD, rand_addr_d)
+  if (use_64bit_opcodes)
+  {
+    candidates += seq_load_addrfn(LWU, rand_addr_w)
+    candidates += seq_load_addrfn(LD, rand_addr_d)
+  }
 
   candidates += seq_store_addrfn(SB, rand_addr_b)
   candidates += seq_store_addrfn(SH, rand_addr_h)
   candidates += seq_store_addrfn(SW, rand_addr_w)
-  candidates += seq_store_addrfn(SD, rand_addr_d)
+  if (use_64bit_opcodes)
+  {
+    candidates += seq_store_addrfn(SD, rand_addr_d)
+  }
 
   if (use_amo) 
   {
@@ -128,14 +135,18 @@ class SeqMem(xregs: HWRegPool, mem: Mem, use_amo: Boolean) extends InstSeq
     candidates += seq_amo_addrfn(AMOMINU_W, rand_addr_w)
     candidates += seq_amo_addrfn(AMOMAX_W, rand_addr_w)
     candidates += seq_amo_addrfn(AMOMAXU_W, rand_addr_w)
-    candidates += seq_amo_addrfn(AMOADD_D, rand_addr_d)
-    candidates += seq_amo_addrfn(AMOSWAP_D, rand_addr_d)
-    candidates += seq_amo_addrfn(AMOAND_D, rand_addr_d)
-    candidates += seq_amo_addrfn(AMOOR_D, rand_addr_d)
-    candidates += seq_amo_addrfn(AMOMIN_D, rand_addr_d)
-    candidates += seq_amo_addrfn(AMOMINU_D, rand_addr_d)
-    candidates += seq_amo_addrfn(AMOMAX_D, rand_addr_d)
-    candidates += seq_amo_addrfn(AMOMAXU_D, rand_addr_d)
+    
+    if (use_64bit_opcodes)
+    {
+      candidates += seq_amo_addrfn(AMOADD_D, rand_addr_d)
+      candidates += seq_amo_addrfn(AMOSWAP_D, rand_addr_d)
+      candidates += seq_amo_addrfn(AMOAND_D, rand_addr_d)
+      candidates += seq_amo_addrfn(AMOOR_D, rand_addr_d)
+      candidates += seq_amo_addrfn(AMOMIN_D, rand_addr_d)
+      candidates += seq_amo_addrfn(AMOMINU_D, rand_addr_d)
+      candidates += seq_amo_addrfn(AMOMAX_D, rand_addr_d)
+      candidates += seq_amo_addrfn(AMOMAXU_D, rand_addr_d)
+    }
   }
 
   rand_pick(candidates)()

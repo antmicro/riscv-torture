@@ -25,7 +25,7 @@ object ProgSeg
   }
 }
 
-class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean)
+class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_opcodes: Boolean)
 {
   // Setup scalar core memory
   val core_memory = new Mem("test_memory", memsize)
@@ -41,11 +41,11 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean)
   val max_vl = (Math.floor(256/(num_vxregs-1))).toInt * 8
   val used_vl = Math.min(max_vl, rand_range(1, max_vl))
 
-  val xregs = new XRegsPool()
+  val xregs = new XRegsPool(use_64bit_opcodes)
   val fregs = new FRegsMaster()
   val vregs = new VRegsMaster(num_vxregs, num_vpregs, num_vsregs)
   //-------------- RISC-V Vector Registers --------------------
-  val rvvregs = new  RISCV_VRegsPool()
+  val rvvregs = new  RISCV_VRegsPool(use_64bit_opcodes)
   //-----------------------------------------------------------
   val fregpools = fregs.extract_pools()
   val vregpools = vregs.extract_pools()
@@ -386,7 +386,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean)
 
 		    gen_config = true
 		    
-		    val config = configure(vlen)
+		    val config = configure(vl, vlen)
 		     
 		    lmul = config._1
 		    sew = config._2
@@ -410,6 +410,10 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean)
 		    }
 		  }
 	  }
+    else
+    {
+      configure(vl, lmul, sew, nr, nf)
+    }
 
     seqs += nxtseq
     seqstats(nxtseq.seqname) += 1
@@ -495,7 +499,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean)
   var vfloat = false
 //*****************************************************************************
 
-  def code_body(seqnum: Int, mix: Map[String, Int], veccfg: Map[String, String], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, segment: Boolean, rv_vmem_unit: Boolean,rv_vmem_const: Boolean,rv_vmem_vect: Boolean, rv_vmem_zvlsseg: Boolean,rv_vinteger: Boolean, rv_vfixed: Boolean, rv_vfloat: Boolean, rv_vreduce: Boolean, rv_vmask: Boolean, rv_vpermute: Boolean, rv_vamo: Boolean, rv_wide: Boolean, rv_narrow: Boolean, vlen_import: Int, lmul_import: String, sew_import: Int, nr_import: Int, nf_import: Int, mask:Boolean,  multi_config_import: Boolean) =
+  def code_body(seqnum: Int, mix: Map[String, Int], veccfg: Map[String, String], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, segment: Boolean, rv_vmem_unit: Boolean,rv_vmem_const: Boolean,rv_vmem_vect: Boolean, rv_vmem_zvlsseg: Boolean,rv_vinteger: Boolean, rv_vfixed: Boolean, rv_vfloat: Boolean, rv_vreduce: Boolean, rv_vmask: Boolean, rv_vpermute: Boolean, rv_vamo: Boolean, rv_wide: Boolean, rv_narrow: Boolean, vlen_import: Int, lmul_import: String, sew_import: Int, nr_import: Int, nf_import: Int, mask:Boolean,  multi_config_import: Boolean, use_64bit_opcodes: Boolean) =
   {
   	multi_config = multi_config_import
   	vlen = vlen_import
@@ -508,12 +512,12 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean)
       vfloat = false
 
     val name_to_seq = Map(
-      "xmem" -> (() => new SeqMem(xregs, core_memory, use_amo)),
-      "xbranch" -> (() => new SeqBranch(xregs)),
-      "xalu" -> (() => new SeqALU(xregs, use_mul, use_div)), //true means use_divider, TODO: make better
+      "xmem" -> (() => new SeqMem(xregs, core_memory, use_amo, use_64bit_opcodes)),
+      "xbranch" -> (() => new SeqBranch(xregs, use_64bit_opcodes)),
+      "xalu" -> (() => new SeqALU(xregs, use_mul, use_div, use_64bit_opcodes)), //true means use_divider, TODO: make better
       "fgen" -> (() => new SeqFPU(fregs_s, fregs_d)),
       "fpmem" -> (() => new SeqFPMem(xregs, fregs_s, fregs_d, core_memory)),
-      "fax" -> (() => new SeqFaX(xregs, fregs_s, fregs_d)),
+      "fax" -> (() => new SeqFaX(xregs, fregs_s, fregs_d, use_64bit_opcodes)),
       "fdiv" -> (() => new SeqFDiv(fregs_s, fregs_d)),
       "vec" -> (() => new SeqVec(xregs, vxregs, vpregs, vsregs, varegs, used_vl, veccfg)),
       "rvv" -> (() => new SeqRVV(rvvregs, xregs, fregs_s, fregs_d, core_memory, rv_vmem_unit, rv_vmem_const, rv_vmem_vect, rv_vmem_zvlsseg, rv_vinteger, rv_vfixed, vfloat, rv_vreduce, rv_vmask, rv_vpermute, rv_vamo, wide, narrow, lmul, sew, nr, nf, mask, gen_config, multi_config)))       // Added RISC-V Vector functionality
@@ -626,12 +630,12 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean)
     "#include \"riscv_test.h\"\n"
   }
 
-  def code_header(using_fpu: Boolean, using_vec: Boolean, using_rvv: Boolean, fprnd: Int, lmul:String, sew:Int) =
+  def code_header(using_fpu: Boolean, using_vec: Boolean, using_rvv: Boolean, fprnd: Int, lmul:String, sew:Int, use_64bit_opcodes: Boolean) =
   {    	
     assert(!(using_rvv && using_vec), "RISC-V Vector and Hwacha Vector instructions can not be used simultaneously")
     "\n" +
     (if (using_vec) "RVTEST_RV64UV\n"
-     else if (using_rvv) "RVTEST_RV64UV\n"
+     else if (using_rvv) if (use_64bit_opcodes) "RVTEST_RV64UV\n" else "RVTEST_RV32UV\n"
      else if (using_fpu) "RVTEST_RV64UF\n"
      else "RVTEST_RV64U\n") +
     "RVTEST_CODE_BEGIN\n" +
@@ -762,7 +766,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean)
 
   def data_footer() = ""
 
-  def generate(nseqs: Int, fprnd: Int, mix: Map[String, Int], veccfg: Map[String, String], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, segment : Boolean, loop: Boolean, loop_size: Int, rv_vmem_unit: Boolean,rv_vmem_const: Boolean,rv_vmem_vect: Boolean, rv_vmem_zvlsseg: Boolean, rv_vinteger: Boolean, rv_vfixed: Boolean, rv_vfloat: Boolean, rv_vreduce: Boolean, rv_vmask: Boolean, rv_vpermute: Boolean, rv_vamo: Boolean, rv_wide: Boolean, rv_narrow: Boolean, vlen: Int, lmul_import: String, sew_import: Int, nr_import: Int, nf_import: Int, mask :Boolean, multi_config: Boolean) =
+  def generate(nseqs: Int, fprnd: Int, mix: Map[String, Int], veccfg: Map[String, String], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, segment : Boolean, loop: Boolean, loop_size: Int, rv_vmem_unit: Boolean,rv_vmem_const: Boolean,rv_vmem_vect: Boolean, rv_vmem_zvlsseg: Boolean, rv_vinteger: Boolean, rv_vfixed: Boolean, rv_vfloat: Boolean, rv_vreduce: Boolean, rv_vmask: Boolean, rv_vpermute: Boolean, rv_vamo: Boolean, rv_wide: Boolean, rv_narrow: Boolean, vlen: Int, lmul_import: String, sew_import: Int, nr_import: Int, nf_import: Int, mask :Boolean, multi_config: Boolean, use_64bit_opcodes: Boolean) =
   {
     // Check if generating any FP operations or Vec unit stuff
     val using_vec = mix.filterKeys(List("vec") contains _).values.reduce(_+_) > 0
@@ -782,8 +786,8 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean)
 	  nf = nf_import
 
     header(nseqs) +
-    code_header(using_fpu, using_vec, using_rvv, fprnd, lmul, sew) +
-    code_body(nseqs, mix, veccfg, use_amo, use_mul, use_div, segment, rv_vmem_unit, rv_vmem_const, rv_vmem_vect, rv_vmem_zvlsseg, rv_vinteger, rv_vfixed, rv_vfloat, rv_vreduce, rv_vmask, rv_vpermute, rv_vamo, rv_wide, rv_narrow, vlen, lmul, sew, nr, nf, mask, multi_config) +
+    code_header(using_fpu, using_vec, using_rvv, fprnd, lmul, sew, use_64bit_opcodes) +
+    code_body(nseqs, mix, veccfg, use_amo, use_mul, use_div, segment, rv_vmem_unit, rv_vmem_const, rv_vmem_vect, rv_vmem_zvlsseg, rv_vinteger, rv_vfixed, rv_vfloat, rv_vreduce, rv_vmask, rv_vpermute, rv_vamo, rv_wide, rv_narrow, vlen, lmul, sew, nr, nf, mask, multi_config, use_64bit_opcodes) +
     code_footer(using_fpu, using_vec, using_rvv, loop,lmul, sew) +
     data_header() +
     data_input(using_fpu, using_vec, using_rvv) +
