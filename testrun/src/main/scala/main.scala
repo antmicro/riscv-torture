@@ -257,7 +257,7 @@ object TestRunner extends App
     val simArgs   = if (hwacha) Seq("--extension=hwacha") else Seq()
     val simRArgs  =  if (rvv) Seq("--isa=RV64gcV_zfh") else Seq()
  
-    runSim("spike", debugArgs++simRArgs++simArgs , bin+".spike.sig", output, bin+".spike.out", Seq(), bin)
+    runSim("spike", debugArgs++simRArgs++simArgs++Seq("--varch=vlen:512,elen:64"), bin+".spike.sig", output, bin+".spike.out", Seq(), bin)
   }
 
   def runSimulators(bin: String, simulators: Seq[(String, (String, Boolean, Boolean, Boolean) => String)], debug: Boolean, output: Boolean, dumpWaveform: Boolean): Seq[(String, (String, (String, Boolean, Boolean, Boolean) => String), Result)] = 
