@@ -386,7 +386,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
 
 		    gen_config = true
 		    
-		    val config = configure(vlen)
+		    val config = configure(vl, vlen)
 		     
 		    lmul = config._1
 		    sew = config._2
@@ -410,6 +410,10 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
 		    }
 		  }
 	  }
+    else
+    {
+      configure(vl, lmul, sew, nr, nf)
+    }
 
     seqs += nxtseq
     seqstats(nxtseq.seqname) += 1
