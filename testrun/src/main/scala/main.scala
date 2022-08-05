@@ -161,19 +161,19 @@ object TestRunner extends App
     assert(asmFileName.endsWith(".S"), println("Filename does not end in .S"))
     val binFileName = asmFileName.dropRight(2)
     var process = ""
+    val compiler = if (use_64bit_opcodes) "riscv64-unknown-elf-gcc" else "riscv32-unknown-elf-gcc"
+    val arch = if (use_64bit_opcodes) "rv64gcv" else "rv32gcv"
     if (virtualMode)
     {
       println("Virtual mode")
       val entropy = (new Random()).nextLong()
       println("entropy: " + entropy)
-      val compiler = if (use_64bit_opcodes) "riscv64-unknown-elf-gcc" else "riscv32-unknown-elf-gcc"
-      process = compiler + " -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -Wa,-march=rv32gcv -Wl,-g -DENTROPY=" + entropy + " -std=gnu99 -O2 -I./env/v -I./macros/scalar -T./env/v/link.ld ./env/v/entry.S ./env/v/vm.c " + asmFileName + " -lc -o " + binFileName
+      process = compiler + " -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -Wa,-march="  +arch + " -Wl,-g -DENTROPY=" + entropy + " -std=gnu99 -O2 -I./env/v -I./macros/scalar -T./env/v/link.ld ./env/v/entry.S ./env/v/vm.c " + asmFileName + " -lc -o " + binFileName
     }
     else
     {
       println("Physical mode")
-      val compiler = if (use_64bit_opcodes) "riscv64-unknown-elf-gcc" else "riscv32-unknown-elf-gcc"
-      process = compiler + " -nostdlib -nostartfiles -Wa,-march=rv32gcv -Wl,-g -I./env/p -T./env/p/link.ld " + asmFileName + " -o " + binFileName
+      process = compiler + " -nostdlib -nostartfiles -Wa,-march=" + arch + " -Wl,-g -I./env/p -T./env/p/link.ld " + asmFileName + " -o " + binFileName
     }
     val pb = Process(process)
     val exitCode = pb.!

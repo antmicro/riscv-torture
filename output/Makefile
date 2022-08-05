@@ -19,7 +19,7 @@ extra_files =
 # Build rules
 #--------------------------------------------------------------------
 
-TOOLCHAIN_PREFIX=riscv32-unknown-elf-
+TOOLCHAIN_PREFIX=riscv64-unknown-elf-
 
 RISCV_GCC = $(TOOLCHAIN_PREFIX)gcc
 RISCV_GCC_OPTS = -nostdlib -nostartfiles -Wa,-march=RVIMAFDV -Wl,-g
