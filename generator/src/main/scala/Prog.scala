@@ -38,8 +38,8 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
   val min_pregs   = if(pred_alu || pred_mem || use_pop) 2 else 1
   val num_vpregs = rand_range(min_pregs, 16)
   val num_vsregs = veccfg.getOrElse("numsregs","64").toInt
-  val max_vl = (Math.floor(256/(num_vxregs-1))).toInt * 8
-  val used_vl = Math.min(max_vl, rand_range(1, max_vl))
+  val max_vl = 32
+  val used_vl = rand_range(0, max_vl)
 
   val xregs = new XRegsPool(use_64bit_opcodes)
   val fregs = new FRegsMaster()
@@ -82,7 +82,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
   def is_seqs_active_empty = seqs_active.length == 0
 
   def are_pools_fully_unallocated = List(xregs, fregs_s, fregs_d, vxregs, vpregs, vsregs, varegs, rvvregs).forall(_.is_fully_unallocated)
-
+  
   def seqs_find_active(): Unit =
   {
     for (seq <- seqs_not_allocated)
@@ -385,7 +385,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
 		    vconfig_counter = counter_memory + 1
 
 		    gen_config = true
-		    
+		    vl = rand_range(0, max_vl)
 		    val config = configure(vl, vlen)
 		     
 		    lmul = config._1
@@ -520,7 +520,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
       "fax" -> (() => new SeqFaX(xregs, fregs_s, fregs_d, use_64bit_opcodes)),
       "fdiv" -> (() => new SeqFDiv(fregs_s, fregs_d)),
       "vec" -> (() => new SeqVec(xregs, vxregs, vpregs, vsregs, varegs, used_vl, veccfg)),
-      "rvv" -> (() => new SeqRVV(rvvregs, xregs, fregs_s, fregs_d, core_memory, rv_vmem_unit, rv_vmem_const, rv_vmem_vect, rv_vmem_zvlsseg, rv_vinteger, rv_vfixed, vfloat, rv_vreduce, rv_vmask, rv_vpermute, rv_vamo, wide, narrow, lmul, sew, nr, nf, mask, gen_config, multi_config)))       // Added RISC-V Vector functionality
+      "rvv" -> (() => new SeqRVV(rvvregs, xregs, fregs_s, fregs_d, core_memory, rv_vmem_unit, rv_vmem_const, rv_vmem_vect, rv_vmem_zvlsseg, rv_vinteger, rv_vfixed, vfloat, rv_vreduce, rv_vmask, rv_vpermute, rv_vamo, wide, narrow, vl, lmul, sew, nr, nf, mask, gen_config, multi_config)))       // Added RISC-V Vector functionality
 
     prob_tbl = new ArrayBuffer[(Int, () => InstSeq)]
     nseqs = seqnum
@@ -669,7 +669,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
   //************************************* Added RISC-V Vector functionality *********************
   def init_rvv_vector(lmul:String, sew: Int) =
   {
-    "\tli a0, " + "2048\n" +
+    "\tli a0, " + used_vl + "\n" +
     "\tvsetvli t0, a0, e" + sew.toString + ", m" + lmul + ", ta, ma\n"
   }
 
