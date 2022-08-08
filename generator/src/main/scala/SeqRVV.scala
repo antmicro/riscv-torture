@@ -7,10 +7,10 @@ import Rand._
 class SeqRVV(rvvregs: HWRegPool, xregs: HWRegPool, fregs_s: HWRegPool, fregs_d: HWRegPool, mem: Mem,
 rv_vmem_unit: Boolean, rv_vmem_const: Boolean, rv_vmem_vect: Boolean, rv_vmem_zvlsseg: Boolean,
 rv_vinteger: Boolean, rv_vfixed: Boolean, rv_vfloat: Boolean, rv_vreduce: Boolean, rv_vmask: Boolean,
-rv_vpermute: Boolean, rv_vamo: Boolean, rv_wide: Boolean, rv_narrow: Boolean, lmul: String, sew: Int, nr: Int, nf: Int,
+rv_vpermute: Boolean, rv_vamo: Boolean, rv_wide: Boolean, rv_narrow: Boolean, vl: Int, lmul: String, sew: Int, nr: Int, nf: Int,
 mask: Boolean, gen_config: Boolean, multi_config: Boolean) extends InstSeq
 {
-  override val seqname = "rvec"
+  override val seqname = "rvv"
 
   val inst_seq_0  = "op x[rd], x[rs1], e<sew>, m<lmul>, ta, ma"
   val inst_seq_1  = "op vd, addr(x[rs1])"
@@ -40,9 +40,9 @@ mask: Boolean, gen_config: Boolean, multi_config: Boolean) extends InstSeq
   def seq_0(op: Opcode)= () =>  // "op x[rd], x[rs1], e<sew>, m<lmul>, ta, ma"
   {
     var dest = reg_write(xregs)
-    val vl   = reg_write(xregs)
-    insts += LI(vl, Imm(2048))
-    insts += op(dest, vl, SEW(sew), LMUL(lmul), TA(), MA() )
+    val vl_reg = reg_write(xregs)
+    insts += LI(vl_reg, Imm(vl))
+    insts += op(dest, vl_reg, SEW(sew), LMUL(lmul), TA(), MA() )
   }
   
   //------------------------------ seq 1 ----------------------------------//
