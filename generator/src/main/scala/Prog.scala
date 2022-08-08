@@ -669,7 +669,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
   //************************************* Added RISC-V Vector functionality *********************
   def init_rvv_vector(lmul:String, sew: Int) =
   {
-    "\tli a0, " + "2048\n" +
+    "\tli a0, " + used_vl + "\n" +
     "\tvsetvli t0, a0, e" + sew.toString + ", m" + lmul + ", ta, ma\n"
   }
 
