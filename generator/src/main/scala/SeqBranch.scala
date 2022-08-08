@@ -75,7 +75,7 @@ class SeqBranch(xregs: HWRegPool, use_64bit_opcodes: Boolean) extends InstSeq
     val reg_mask = reg_write_visible(xregs)
 
     insts += ADDI(reg_one, reg_read_zero(xregs), Imm(1))
-    insts += SLL(reg_one, reg_one, if (use_64bit_opcodes) Imm(64) else Imm(31))
+    insts += SLL(reg_one, reg_one, if (use_64bit_opcodes) Imm(63) else Imm(31))
     insts += ADDI(reg_mask, reg_read_zero(xregs), Imm(-1))
     insts += XOR(reg_mask, reg_mask, reg_one)
     insts += AND(reg_dst1, reg_src, reg_mask)
