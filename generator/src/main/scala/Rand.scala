@@ -352,7 +352,7 @@ object Rand
   {
     val min_size = rand_min_memory_size_rvv()    
     assert(min_size < memsize, println(s"Memory size should be larger than $min_size (minimal value required to perform vector instructions)."))
-    return rand_range_multiple8(0, memsize-1)-min_size
+    return rand_range_multiple8(0, memsize-1-min_size)
   }
   def rand_min_memory_size_rvv(): Int =
   {
