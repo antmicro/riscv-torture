@@ -57,6 +57,7 @@ object TestRunner extends App
   var maxcycles = 10000000
   var hwacha = true
   var rvv = true
+  var use_64bit_opcodes = true;
 
   def testrun(testAsmName:  Option[String],
               cSimPath:     Option[String],
@@ -76,7 +77,7 @@ object TestRunner extends App
     val dump = (config.getProperty("torture.testrun.dump", "false").toLowerCase == "true")
     val seek = (config.getProperty("torture.testrun.seek", "true").toLowerCase == "true")
     hwacha = (config.getProperty("torture.testrun.vec", "true").toLowerCase == "true")
-    val use_64bit_opcodes = (config.getProperty("torture.generator.64bit_opcodes", "true").toLowerCase == "true")
+    use_64bit_opcodes = (config.getProperty("torture.generator.64bit_opcodes", "true").toLowerCase == "true")
     
     // RISC-V Vector functionality added
     rvv = (config.getProperty("torture.testrun.rvv", "true").toLowerCase == "true")
@@ -255,9 +256,9 @@ object TestRunner extends App
   {
     val debugArgs = if(debug && output) Seq("-d") else Seq()
     val simArgs   = if (hwacha) Seq("--extension=hwacha") else Seq()
-    val simRArgs  =  if (rvv) Seq("--isa=RV64gcV_zfh") else Seq()
+    val simISAArgs  =  if (use_64bit_opcodes) Seq("--isa=RV64gcV_zfh") else Seq("--isa=RV32gcV_zfh")
  
-    runSim("spike", debugArgs++simRArgs++simArgs++Seq("--varch=vlen:512,elen:64"), bin+".spike.sig", output, bin+".spike.out", Seq(), bin)
+    runSim("spike", debugArgs++simISAArgs++simArgs++Seq("--varch=vlen:512,elen:64"), bin+".spike.sig", output, bin+".spike.out", Seq(), bin)
   }
 
   def runSimulators(bin: String, simulators: Seq[(String, (String, Boolean, Boolean, Boolean) => String)], debug: Boolean, output: Boolean, dumpWaveform: Boolean): Seq[(String, (String, (String, Boolean, Boolean, Boolean) => String), Result)] = 
