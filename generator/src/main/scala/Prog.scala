@@ -39,7 +39,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
   val num_vpregs = rand_range(min_pregs, 16)
   val num_vsregs = veccfg.getOrElse("numsregs","64").toInt
   val max_vl = 32
-  val used_vl = rand_range(1, max_vl)
+  val used_vl = rand_range(0, max_vl)
 
   val xregs = new XRegsPool(use_64bit_opcodes)
   val fregs = new FRegsMaster()
@@ -385,7 +385,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
 		    vconfig_counter = counter_memory + 1
 
 		    gen_config = true
-		    vl = rand_range(1, max_vl)
+		    vl = rand_range(0, max_vl)
 		    val config = configure(vl, vlen)
 		     
 		    lmul = config._1
