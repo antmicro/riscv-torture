@@ -393,6 +393,8 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
 		    nr = config._3
 		    nf = config._4
 
+        rm = rand_range(0, 3)
+
 		    if (sew == vlen || lmul == "8") 
 		    {
 		    	wide = false
@@ -520,7 +522,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
       "fax" -> (() => new SeqFaX(xregs, fregs_s, fregs_d, use_64bit_opcodes)),
       "fdiv" -> (() => new SeqFDiv(fregs_s, fregs_d)),
       "vec" -> (() => new SeqVec(xregs, vxregs, vpregs, vsregs, varegs, used_vl, veccfg)),
-      "rvv" -> (() => new SeqRVV(rvvregs, xregs, fregs_s, fregs_d, core_memory, rv_vmem_unit, rv_vmem_const, rv_vmem_vect, rv_vmem_zvlsseg, rv_vinteger, rv_vfixed, vfloat, rv_vreduce, rv_vmask, rv_vpermute, rv_vamo, wide, narrow, vl, lmul, sew, nr, nf, mask, gen_config, multi_config)))       // Added RISC-V Vector functionality
+      "rvv" -> (() => new SeqRVV(rvvregs, xregs, fregs_s, fregs_d, core_memory, rv_vmem_unit, rv_vmem_const, rv_vmem_vect, rv_vmem_zvlsseg, rv_vinteger, rv_vfixed, vfloat, rv_vreduce, rv_vmask, rv_vpermute, rv_vamo, wide, narrow, vl, lmul, sew, nr, nf, mask, rm, gen_config, multi_config)))       // Added RISC-V Vector functionality
 
     prob_tbl = new ArrayBuffer[(Int, () => InstSeq)]
     nseqs = seqnum

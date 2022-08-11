@@ -89,6 +89,12 @@ class V0t(b : String) extends Operand
 {
   override def toString = b.toString
 }
+
+class CSR(reg : String) extends Operand
+{
+  override def toString = reg.toString
+}
+
 // ***********************************************************
 
 object Imm
@@ -150,5 +156,10 @@ object MA
 object V0t
 {
   def apply(b : String) = new V0t(b)
+}
+
+object CSR
+{
+  def apply(reg : String) = new CSR(reg)
 }
 // *******************************************************
