@@ -510,8 +510,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
 	  wide = rv_wide
     narrow = rv_narrow
     vfloat = rv_vfloat
-    if(multi_config)
-      vfloat = false
+
 
     val name_to_seq = Map(
       "xmem" -> (() => new SeqMem(xregs, core_memory, use_amo, use_64bit_opcodes)),
