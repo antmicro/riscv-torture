@@ -15,6 +15,7 @@ case class Options(var testAsmName: Option[String] = None,
   var testBinName: Option[String] = None,
   var cSimPath: Option[String] = None,
   var rtlSimPath: Option[String] = None,
+  var renodeSimPath: Option[String] = None,
   var seekOutFailure: Boolean = false,
   var output: Boolean = false,
   var dumpWaveform: Boolean = false,
@@ -37,6 +38,7 @@ object TestRunner extends App
       opt[String]('a', "asm") valueName("<file>") text("input ASM file") action {(s: String, c) => c.copy(testAsmName = Some(s))}
       opt[String]('c', "csim") valueName("<file>") text("C simulator") action {(s: String, c) => c.copy(cSimPath = Some(s))}
       opt[String]('r', "rtlsim") valueName("<file>") text("RTL simulator") action {(s: String, c) => c.copy(rtlSimPath = Some(s))}
+      opt[String]('R', "renodesim") valueName("<file>") text("Renode simulator") action {(s: String, c) => c.copy(renodeSimPath = Some(s))}
       opt[Unit]("seek") abbr("s") text("Seek for failing pseg") action {(_, c) => c.copy(seekOutFailure = true)}
       opt[Unit]("output") abbr("o") text("Write verbose output of simulators to file") action {(_, c) => c.copy(output = true)}
       opt[Unit]("dumpwaveform") abbr("dump") text("Create a vcd from csim or a vpd from vsim") action {(_, c) => c.copy(dumpWaveform= true)}
@@ -46,7 +48,7 @@ object TestRunner extends App
       case Some(options) =>
       {
         opts = options;
-        testrun(opts.testAsmName, opts.cSimPath, opts.rtlSimPath, opts.seekOutFailure, opts.output, opts.dumpWaveform, opts.confFileName)
+        testrun(opts.testAsmName, opts.cSimPath, opts.rtlSimPath, opts.renodeSimPath, opts.seekOutFailure, opts.output, opts.dumpWaveform, opts.confFileName)
       }
       case None =>
         System.exit(1) // error message printed by parser
@@ -59,13 +61,14 @@ object TestRunner extends App
   var rvv = true
   var use_64bit_opcodes = true;
 
-  def testrun(testAsmName:  Option[String],
-              cSimPath:     Option[String],
-              rtlSimPath:   Option[String],
-              doSeek:       Boolean,
-              output:       Boolean,
-              dumpWaveform: Boolean,
-              confFileName: String): (Boolean, Option[Seq[String]]) =
+  def testrun(testAsmName:    Option[String],
+              cSimPath:       Option[String],
+              rtlSimPath:     Option[String],
+              renodeSimPath:  Option[String],
+              doSeek:         Boolean,
+              output:         Boolean,
+              dumpWaveform:   Boolean,
+              confFileName:   String): (Boolean, Option[Seq[String]]) =
   {
     val config = new Properties()
     val configin = new FileInputStream(confFileName)
@@ -105,6 +108,11 @@ object TestRunner extends App
     rtlSimPath match 
     {
       case Some(p) => simulators += (("rtlsim",runRtlSim(p) _ ))
+      case None =>
+    }
+    renodeSimPath match 
+    {
+      case Some(p) => simulators += (("renodesim",runRenodeSim(p) _ ))
       case None =>
     }
 
@@ -259,6 +267,11 @@ object TestRunner extends App
     val simISAArgs  =  if (use_64bit_opcodes) Seq("--isa=RV64gcV_zfh") else Seq("--isa=RV32gcV_zfh")
  
     runSim("spike", debugArgs++simISAArgs++simArgs++Seq("--varch=vlen:512,elen:64"), bin+".spike.sig", output, bin+".spike.out", Seq(), bin)
+  }
+  
+  def runRenodeSim(bin: String, debug: Boolean, output: Boolean, dump: Boolean): String = 
+  {
+    runSim("renode", Seq("--disable-xwt", "torture.resc"), bin+".renode.sig", output, bin+".renode.out", Seq(), bin)
   }
 
   def runSimulators(bin: String, simulators: Seq[(String, (String, Boolean, Boolean, Boolean) => String)], debug: Boolean, output: Boolean, dumpWaveform: Boolean): Seq[(String, (String, (String, Boolean, Boolean, Boolean) => String), Result)] = 
