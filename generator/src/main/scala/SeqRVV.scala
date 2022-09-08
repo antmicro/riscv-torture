@@ -841,6 +841,7 @@ mask: Boolean, rm: Int, gen_config: Boolean, multi_config: Boolean) extends Inst
   val ext_8 = (sew == 64 || sew == 128 || sew == 256 || sew == 512 || sew == 1024) && lmul_ext_8.contains(lmul)
 
   var check = rv_vmem_unit | rv_vmem_const | rv_vmem_vect | rv_vmem_zvlsseg | rv_vfloat | rv_vfixed | rv_vpermute | rv_vamo | rv_vreduce | rv_vmask | rv_vinteger
+  var check_rv_vfloat_sew = (sew == 32 || sew == 64)
 
   if(!check)
     default += (VADD_VI, VRSUB_VI, VOR_VI, VAND_VI, VXOR_VI, VMSEQ_VI, VMSNE_VI, VMSLEU_VI, VMSLE_VI, VMSGTU_VI, VMSGT_VI)
@@ -1374,15 +1375,15 @@ mask: Boolean, rm: Int, gen_config: Boolean, multi_config: Boolean) extends Inst
       oplist6_n	+= (VNCLIPU_WV,VNCLIP_WV)
   }
 
-  if(rv_vfloat)
+  if(rv_vfloat && check_rv_vfloat_sew)
   {
     oplist6	+= (VFADD_VV,VFSUB_VV,VFMUL_VV,VFDIV_VV,VFMACC_VV,VFNMACC_VV,VFMSAC_VV,VFNMSAC_VV,
 								VMFNE_VV,VMFLT_VV,VFMSUB_VV,VFNMSUB_VV,VFMIN_VV,VFMAX_VV,VFMADD_VV,VFNMADD_VV,
 								VFSGNJ_VV,VFSGNJN_VV,VFSGNJX_VV,VMFEQ_VV,VMFLE_VV)	
  
-  	if(rv_wide)
+  	if(rv_wide && sew == 32)
   	  oplist6_fw  += (VFWADD_VV,VFWSUB_VV,VFWMUL_VV,VFWMACC_VV,VFWNMACC_VV,VFWMSAC_VV,VFWNMSAC_VV)
-  	if(rv_wide)
+  	if(rv_wide && sew == 32)
   	  oplist6_fwx += (VFWADD_WV,VFWSUB_WV)
   }
 
@@ -1392,9 +1393,9 @@ mask: Boolean, rm: Int, gen_config: Boolean, multi_config: Boolean) extends Inst
   	
   	if(rv_wide)
   	  oplist6_w += (VWREDSUM_VS,VWREDSUMU_VS)
-  	if(rv_vfloat)
+  	if(rv_vfloat && check_rv_vfloat_sew)
   	  oplist6 += (VFREDOSUM_VS,VFREDSUM_VS,VFREDMAX_VS,VFREDMIN_VS)
-  	if(rv_wide && rv_vfloat)
+  	if(rv_wide && rv_vfloat && sew == 32)
   	  oplist6_fw += (VFWREDOSUM_VS,VFWREDSUM_VS)
   }
 
@@ -1477,15 +1478,22 @@ mask: Boolean, rm: Int, gen_config: Boolean, multi_config: Boolean) extends Inst
 
   if(rv_vfloat)
   {
-    oplist9 += (VFSQRT_V,VFCLASS_V,VFCVT_XU_F_V,VFCVT_X_F_V,VFCVT_RTZ_XU_F_V,VFCVT_RTZ_X_F_V,
- 								VFCVT_F_XU_V,VFCVT_F_X_V)
+    if(check_rv_vfloat_sew)
+      oplist9 += (VFSQRT_V,VFCLASS_V,VFCVT_XU_F_V,VFCVT_X_F_V,VFCVT_RTZ_XU_F_V,VFCVT_RTZ_X_F_V,
+                  VFCVT_F_XU_V,VFCVT_F_X_V)
 
-  	if(rv_wide)
-  	  oplist9_w	+= (VFWCVT_XU_F_V,VFWCVT_X_F_V,VFWCVT_RTZ_XU_F_V,VFWCVT_RTZ_X_F_V,
-								  	VFWCVT_F_XU_V,VFWCVT_F_X_V,VFWCVT_F_F_V)
-    if(rv_narrow)
-      oplist9_n += (VFNCVT_XU_F_W,VFNCVT_X_F_W,VFNCVT_RTZ_XU_F_W,VFNCVT_RTZ_X_F_W,VFNCVT_F_XU_W,
-						    		VFNCVT_F_X_W,VFNCVT_F_F_W,VFNCVT_ROD_F_F_W)
+  	if(rv_wide && (sew == 16 || sew == 32))
+      oplist9_w	+= (VFWCVT_F_XU_V,VFWCVT_F_X_V)
+    if(rv_wide && sew == 32)
+  	  oplist9_w	+= (VFWCVT_F_F_V)
+    if(rv_wide && check_rv_vfloat_sew)
+  	  oplist9_w	+= (VFWCVT_XU_F_V,VFWCVT_X_F_V,VFWCVT_RTZ_XU_F_V,VFWCVT_RTZ_X_F_V)
+          
+    if(rv_narrow && check_rv_vfloat_sew)
+      oplist9_n += (VFNCVT_XU_F_W,VFNCVT_X_F_W,VFNCVT_RTZ_XU_F_W,VFNCVT_RTZ_X_F_W)
+    if(rv_narrow && sew == 64)
+      oplist9_n += (VFNCVT_F_XU_W,VFNCVT_F_X_W,
+						    		VFNCVT_F_F_W,VFNCVT_ROD_F_F_W)
   }
 
   if(rv_vpermute)
@@ -1512,30 +1520,30 @@ mask: Boolean, rm: Int, gen_config: Boolean, multi_config: Boolean) extends Inst
   if(rv_vpermute)	oplist14_um	+= (VMV_S_X)
   if(rv_vinteger)	oplist15_um	+= (VMV_V_I)
 
-  if(rv_vfloat)
+  if(rv_vfloat && check_rv_vfloat_sew)
   {
     oplist16 += (VFADD_VF,VFSUB_VF,VFRSUB_VF,VFMUL_VF,VFDIV_VF,
 		     				 VFRDIV_VF,VFMIN_VF,VFMAX_VF,VFSGNJ_VF,VFSGNJN_VF,VFSGNJX_VF,VMFEQ_VF,VMFNE_VF,
 		     				 VMFLT_VF,VMFLE_VF,VMFGT_VF,VMFGE_VF)
 
-  	if(rv_wide)	oplist16_w	  += (VFWADD_VF,VFWSUB_VF,VFWMUL_VF)
-  	if(rv_wide)	oplist16_wx  += (VFWADD_WF,VFWSUB_WF)
+  	if(rv_wide && sew == 32)	oplist16_w	 += (VFWADD_VF,VFWSUB_VF,VFWMUL_VF)
+  	if(rv_wide && sew == 32)	oplist16_wx  += (VFWADD_WF,VFWSUB_WF)
   }
 
-  if(rv_vpermute && rv_vfloat ) oplist16_p += (VFSLIDE1UP_VF,VFSLIDE1DOWN_VF)
+  if(rv_vpermute && rv_vfloat && check_rv_vfloat_sew) oplist16_p += (VFSLIDE1UP_VF,VFSLIDE1DOWN_VF)
 
-  if(rv_vfloat)
+  if(rv_vfloat && check_rv_vfloat_sew)
   {
     oplist17_um += (VFMACC_VF,VFNMACC_VF,VFMSAC_VF,VFNMSAC_VF,VFMADD_VF,VFNMADD_VF,VFMSUB_VF,VFNMSUB_VF)
   	
-  	if(rv_wide)
+  	if(rv_wide && sew == 32)
   	  oplist17_w_um += (VFWMACC_VF,VFWNMACC_VF,VFWMSAC_VF,VFWNMSAC_VF)
   }
 
-  if(rv_vfloat)
+  if(rv_vfloat && check_rv_vfloat_sew)
     oplist18_um += (VFMV_V_F)
 
-  if(rv_vpermute && rv_vfloat)
+  if(rv_vpermute && rv_vfloat && check_rv_vfloat_sew)
     oplist18_um	+= (VFMV_S_F)
 
   if(rv_vpermute)
@@ -1547,10 +1555,10 @@ mask: Boolean, rm: Int, gen_config: Boolean, multi_config: Boolean) extends Inst
   if(rv_vmask)
     oplist20 += (VID_V)
 
-  if(rv_vpermute && rv_vfloat && mask)
+  if(rv_vpermute && rv_vfloat && mask && check_rv_vfloat_sew)
     oplist21_um	+= (VFMV_F_S)
 
-  if(rv_vfloat)
+  if(rv_vfloat && check_rv_vfloat_sew)
     oplist22_um	+= (VFMERGE_VFM)
 
   //-------------------------Instruction Generation---------------------------------------
