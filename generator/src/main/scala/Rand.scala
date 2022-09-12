@@ -34,6 +34,7 @@ object Rand
   var nf = 1
   var nr = 1
   var rm = 0
+  var frm = 0
   val list_lmul = ArrayBuffer("8","4", "2", "1", "f2", "f4", "f8")
   val list_sew = ArrayBuffer(8,16, 32, 64,128, 256, 512,1024)
   val list_nf = ArrayBuffer(1)

@@ -8,7 +8,7 @@ class SeqRVV(rvvregs: HWRegPool, xregs: HWRegPool, fregs_s: HWRegPool, fregs_d: 
 rv_vmem_unit: Boolean, rv_vmem_const: Boolean, rv_vmem_vect: Boolean, rv_vmem_zvlsseg: Boolean,
 rv_vinteger: Boolean, rv_vfixed: Boolean, rv_vfloat: Boolean, rv_vreduce: Boolean, rv_vmask: Boolean,
 rv_vpermute: Boolean, rv_vamo: Boolean, rv_wide: Boolean, rv_narrow: Boolean, vl: Int, lmul: String, sew: Int, nr: Int, nf: Int,
-mask: Boolean, rm: Int, gen_config: Boolean, multi_config: Boolean) extends InstSeq
+mask: Boolean, rm: Int, frm: Int, gen_config: Boolean, multi_config: Boolean) extends InstSeq
 {
   override val seqname = "rvv"
 
@@ -41,9 +41,12 @@ mask: Boolean, rm: Int, gen_config: Boolean, multi_config: Boolean) extends Inst
   {
     var dest = reg_write(xregs)
     val vl_reg = reg_write(xregs)
+    val frm_reg = reg_write(xregs)
     insts += LI(vl_reg, Imm(vl))
     insts += op(dest, vl_reg, SEW(sew), LMUL(lmul), TA(), MA() )
     insts += CSRRW(reg_read_zero(xregs), CSR("vxrm"), Imm(rm))
+    insts += LI(frm_reg, Imm(frm))
+    insts += FSRM(frm_reg)
   }
   
   //------------------------------ seq 1 ----------------------------------//
