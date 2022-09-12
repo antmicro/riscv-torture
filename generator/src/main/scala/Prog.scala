@@ -777,7 +777,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
     // TODO: make a config object that is passed around?
 
   	test_nseqs = nseqs
-	  vconfig_counter = rand_range(0, test_nseqs/2)
+	  vconfig_counter = rand_range(0, test_nseqs/8)
 	  counter_memory = vconfig_counter
 	  lmul_user = lmul_import
 	  sew_user = sew_import
