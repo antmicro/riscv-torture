@@ -1487,9 +1487,9 @@ mask: Boolean, rm: Int, gen_config: Boolean, multi_config: Boolean) extends Inst
     if(rv_wide && sew == 32)
   	  oplist9_w	+= (VFWCVT_F_F_V, VFWCVT_XU_F_V,VFWCVT_X_F_V,VFWCVT_RTZ_XU_F_V,VFWCVT_RTZ_X_F_V)
           
-    if(rv_narrow && check_rv_vfloat_sew)
+    if(rv_narrow && (sew == 16 || sew == 32))
       oplist9_n += (VFNCVT_XU_F_W,VFNCVT_X_F_W,VFNCVT_RTZ_XU_F_W,VFNCVT_RTZ_X_F_W)
-    if(rv_narrow && sew == 64)
+    if(rv_narrow && sew == 32)
       oplist9_n += (VFNCVT_F_XU_W,VFNCVT_F_X_W,
 						    		VFNCVT_F_F_W,VFNCVT_ROD_F_F_W)
   }
