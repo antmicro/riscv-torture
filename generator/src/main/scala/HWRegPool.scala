@@ -104,30 +104,31 @@ class FRegsMaster extends ScalarRegPool with PoolsMaster
   val (name,regname,ldinst,stinst) = ("freg","reg_f","fld","fsd") // and flw and fsw
   val s_reg_num = new ArrayBuffer[Int]
   val d_reg_num = new ArrayBuffer[Int]
+  val h_reg_num = new ArrayBuffer[Int]
+  val available_numbers = new ArrayBuffer[Int]
+  val minimal_count = 5
+  val reg_nums = List(s_reg_num, d_reg_num, h_reg_num)
+  available_numbers ++= (0 to 31).toList
 
-  for (n <- 0 to 31)
-    if(rand_range(0, 1) == 0) s_reg_num += n
-    else d_reg_num += n
-
-  // Ensure each pool has at least 5 members
-  while(s_reg_num.length < 5)
+  for (n <- 0 to minimal_count)
   {
-    val mv_n = rand_pick(d_reg_num)
-    d_reg_num -= mv_n
-    s_reg_num += mv_n
+    for (reg_num <- reg_nums)
+    {
+      var pick = rand_pick(available_numbers)
+      available_numbers -= pick
+      reg_num += pick
+    }
   }
 
-  while(d_reg_num.length < 5)
+  for (num <- available_numbers)
   {
-    val mv_n = rand_pick(s_reg_num)
-    s_reg_num -= mv_n
-    d_reg_num += mv_n
+    reg_nums(rand_range(0, reg_nums.length-1)) += num
   }
 
   val s_regpool = new FRegsPool(s_reg_num.toArray)
   val d_regpool = new FRegsPool(d_reg_num.toArray)
   val regpools = ArrayBuffer(s_regpool.asInstanceOf[HWRegPool],
-                 d_regpool.asInstanceOf[HWRegPool])
+                 d_regpool.asInstanceOf[HWRegPool], h_regpool.asInstanceOf[HWRegPool])
   override val hwregs = regpools.map(_.hwregs).flatten
 
   override def init_regs() = //Wrapper function
@@ -138,6 +139,9 @@ class FRegsMaster extends ScalarRegPool with PoolsMaster
     s += "\n"+"freg_d_init:\n"+"\tla x1, freg_init_data\n"
     for ((i, curreg) <- d_reg_num.zip(d_regpool.hwregs))
       s += "\tfld" + " " + curreg + ", " + 8*i + "(x1)\n"
+    s += "\n"+"freg_h_init:\n"+"\tla x1, freg_init_data\n"
+    for ((i, curreg) <- h_reg_num.zip(h_regpool.hwregs))
+      s += "\tflh" + " " + curreg + ", " + 8*i + "(x1)\n"
     s += "\n\n"
     s
   }
@@ -151,6 +155,10 @@ class FRegsMaster extends ScalarRegPool with PoolsMaster
     for ((i, curreg) <- d_reg_num.zip(d_regpool.hwregs))
       if (curreg.is_visible)
         s += "\tfsd" + " " + curreg + ", " + 8*i + "(x1)\n"
+    s += "\n"+"\tla x1, freg_output_data\n"
+    for ((i, curreg) <- h_reg_num.zip(h_regpool.hwregs))
+      if (curreg.is_visible)
+        s += "\tfsh" + " " + curreg + ", " + 8*i + "(x1)\n"
     s += "\n\n"
     s
   }
