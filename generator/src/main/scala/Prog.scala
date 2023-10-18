@@ -82,7 +82,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
   def is_seqs_active_empty = seqs_active.length == 0
 
   def are_pools_fully_unallocated = List(xregs, fregs_s, fregs_d, vxregs, vpregs, vsregs, varegs, rvvregs).forall(_.is_fully_unallocated)
-  
+
   def seqs_find_active(): Unit =
   {
     for (seq <- seqs_not_allocated)
@@ -127,7 +127,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
   var jalr_labels = new ArrayBuffer[Label]
 
   def update_stats(inst: Inst) =
-  { 
+  {
     catstats(inst.optype) += 1
     opstats(inst.optype)(inst.opcode) += 1
     for (operand <- inst.operands)
@@ -142,7 +142,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
   def register_stats(use_vec: Boolean): String =
   {
     def register_lt(reg1: (String, Int), reg2: (String, Int)): Boolean =
-    {       
+    {
       val reghash = HashMap('x'->1,'f'->2,'v'->3,'p'->4,'s'->5,'a'->6)
       val regname1 = reg1._1
       val regname2 = reg2._1
@@ -154,17 +154,17 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
           if (regname1(1) == regname2(1))
           {
             return (regname1.substring(2).toInt < regname2.substring(2).toInt)
-          } 
-          else 
+          }
+          else
           {
             return (reghash(regname1(1)) < reghash(regname2(1)))
           }
-        } 
-        else 
+        }
+        else
         {
           return (regname1.substring(1).toInt < regname2.substring(1).toInt)
         }
-      } 
+      }
       else
       {
         return (reghash(regname1(0)) < reghash(regname2(0)))
@@ -180,8 +180,8 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
     s
   }
 
-  def sequence_stats(mix: Map[String, Int], vecmix: Map[String, Int], nseqs: Int, vnseq: Int, vfnum: Int): String = 
-  {  
+  def sequence_stats(mix: Map[String, Int], vecmix: Map[String, Int], nseqs: Int, vnseq: Int, vfnum: Int): String =
+  {
     def seq_lt(seq1: (String, Int), seq2: (String, Int)): Boolean =
     {
       val seqhash = HashMap("xmem"->1,"xbranch"->2,"xalu"->3,"vmem"->4,        // Added RISC-V Vector functionality
@@ -190,8 +190,8 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
       if (seqhash(seq1._1) == 100 && seqhash(seq2._1) == 100) return (seq1._1 < seq2._1)
       return seqhash(seq1._1) < seqhash(seq2._1)
     }
-   
-   
+
+
     val sortedMix = mix.toSeq.sortWith(seq_lt)
     val sortedVecmix = vecmix.toSeq.sortWith(seq_lt)
     var s = "----- Sequence Types Used:"
@@ -231,7 +231,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
     s
   }
   var a		= new ArrayBuffer[String]
-  def instruction_stats(): String = 
+  def instruction_stats(): String =
   {
     def cat_lt(cat1: (String, Int), cat2: (String, Int)): Boolean =
     {
@@ -241,40 +241,40 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
         "Hwacha_vfpfma"->20,"Hwacha_vfpcvt"->21,"Hwacha_vsmem"->22,"Hwacha_vshared"->23,"Hwacha_vpred"->24,"Hwacha_vcmp"->25,"Hwacha_vmisc"->26,"rvv_vmem_unit"->27,"rvv_vmem_const"->28,"rvv_vmem_vect"->29,"rvv_vinteger"->30,"rvv_vfixed"->31,"rvv_vfloat"->32,"rvv_vreduce"->33,"rvv_vmask"->34,"rvv_vpermute"->35, "rvv_vamo"->36, "rvv_vmem_zvlsseg"->37,"rvv_vconfig"->38, "unknown"->39) // Added RISC-V Vector functionality
       return cathash(cat1._1) < cathash(cat2._1)
     }
-  
+
 	  var  s = "------------------------ ISA Coverage ------------------------------------\n"
 	  s += "--------------------------------------------------------------------------\n"
 	  val scalar_integer_inst = opstats.toSeq(1)._2.toSeq.toSeq.toSeq.size+opstats.toSeq(13)._2.toSeq.toSeq.toSeq.size+opstats.toSeq(18)._2.toSeq.toSeq.toSeq.size+opstats.toSeq(20)._2.toSeq.toSeq.toSeq.size+opstats.toSeq(22)._2.toSeq.toSeq.toSeq.size+opstats.toSeq(24)._2.toSeq.toSeq.toSeq.size+opstats.toSeq(37)._2.toSeq.toSeq.toSeq.size
     s += "---------- Total Scalar Integer Instructions =  " + 80 + " --\n"
 	  s += "---------- Generated Scalar Integer Instructions =  " + scalar_integer_inst + " --\n"
 	  s += "---------- Scalar Integer Instructions Coverage =  " + (scalar_integer_inst.toFloat/80.toFloat)*100 + "% --\n"
-	  
+
 
 	  val scalar_float_inst = opstats.toSeq(0)._2.toSeq.toSeq.toSeq.size + opstats.toSeq(2)._2.toSeq.toSeq.toSeq.size +opstats.toSeq(5)._2.toSeq.toSeq.toSeq.size+opstats.toSeq(14)._2.toSeq.toSeq.toSeq.size+opstats.toSeq(17)._2.toSeq.toSeq.toSeq.size+opstats.toSeq(19)._2.toSeq.toSeq.toSeq.size
 	  s += "--------------------------------------------------------------------------\n"
 	  s += "---------- Total Scalar Floating Instructions =  " + 64 + " --\n"
 	  s += "---------- Generated Scalar Floating Instructions =  " + scalar_float_inst + " --\n"
-	  s += "---------- Scalar Floating Instructions Coverage =  " + (scalar_float_inst.toFloat/64.toFloat)*100 + "% --\n"	
-         
+	  s += "---------- Scalar Floating Instructions Coverage =  " + (scalar_float_inst.toFloat/64.toFloat)*100 + "% --\n"
+
 	  val hwacha_inst = opstats.toSeq(4)._2.toSeq.toSeq.toSeq.size+opstats.toSeq(23)._2.toSeq.toSeq.toSeq.size+opstats.toSeq(7)._2.toSeq.toSeq.toSeq.size+opstats.toSeq(8)._2.toSeq.toSeq.toSeq.size+opstats.toSeq(10)._2.toSeq.toSeq.toSeq.size+opstats.toSeq(15)._2.toSeq.toSeq.toSeq.size   +opstats.toSeq(16)._2.toSeq.toSeq.toSeq.size+opstats.toSeq(21)._2.toSeq.toSeq.toSeq.size+opstats.toSeq(30)._2.toSeq.toSeq.toSeq.size+opstats.toSeq(33)._2.toSeq.toSeq.toSeq.size+opstats.toSeq(36)._2.toSeq.toSeq.toSeq.size
 	  s += "--------------------------------------------------------------------------\n"
 	  s += "---------- Total Hwacha Instructions =  " + 207 + " --\n"
 	  s += "---------- Generated Hwacha Instructions =  " + hwacha_inst + " --\n"
 	  s += "---------- Hwacha Instructions Coverage =  " + (hwacha_inst.toFloat/207.toFloat)*100 + "% --\n"
-	  
-	  val rvv_config_inst     = opstats.toSeq(28)._2.toSeq.toSeq.toSeq.size      
-	  val rvv_mem_unit_inst     = opstats.toSeq(26)._2.toSeq.toSeq.toSeq.size 
+
+	  val rvv_config_inst     = opstats.toSeq(28)._2.toSeq.toSeq.toSeq.size
+	  val rvv_mem_unit_inst     = opstats.toSeq(26)._2.toSeq.toSeq.toSeq.size
 	  val rvv_mem_const_inst    = opstats.toSeq(6)._2.toSeq.toSeq.toSeq.size
 	  val rvv_mem_vect_inst     = opstats.toSeq(12)._2.toSeq.toSeq.toSeq.size
 	  val rvv_mem_zvlsseg_inst  = opstats.toSeq(9)._2.toSeq.toSeq.toSeq.size
 	  val rvv_integer_inst      = opstats.toSeq(3)._2.toSeq.toSeq.toSeq.size
 	  val rvv_fixed_inst        = opstats.toSeq(25)._2.toSeq.toSeq.toSeq.size
 	  val rvv_float_inst        = opstats.toSeq(11)._2.toSeq.toSeq.toSeq.size
-	  val rvv_reduce_inst       = opstats.toSeq(29)._2.toSeq.toSeq.toSeq.size    
+	  val rvv_reduce_inst       = opstats.toSeq(29)._2.toSeq.toSeq.toSeq.size
 	  val rvv_mask_inst         = opstats.toSeq(31)._2.toSeq.toSeq.toSeq.size
 	  val rvv_permute_inst      = opstats.toSeq(32)._2.toSeq.toSeq.toSeq.size
 	  val rvv_vamo_inst         = opstats.toSeq(27)._2.toSeq.toSeq.toSeq.size
-         
+
 	  val rvv_inst = rvv_mem_unit_inst+rvv_mem_const_inst+rvv_mem_vect_inst+rvv_integer_inst+rvv_fixed_inst+rvv_float_inst+rvv_reduce_inst+rvv_mask_inst+rvv_permute_inst + rvv_vamo_inst + rvv_mem_zvlsseg_inst+rvv_config_inst
 
 		s += "--------------------------------------------------------------------------\n"
@@ -380,14 +380,14 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
 	  {
 	    vconfig_counter -= 1
 	    gen_config = false
-	    if (vconfig_counter == 0) 
+	    if (vconfig_counter == 0)
 	    {
 		    vconfig_counter = counter_memory + 1
 
 		    gen_config = true
 		    vl = rand_range(0, max_vl)
 		    val config = configure(vl, vlen)
-		     
+
 		    lmul = config._1
 		    sew = config._2
 		    nr = config._3
@@ -396,18 +396,18 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
         rm = rand_range(0, 3)
         frm = rand_range(0,4)
 
-		    if (sew == vlen || lmul == "8") 
+		    if (sew == vlen || lmul == "8")
 		    {
 		    	wide = false
 		    	narrow = false
 		    }
-		    else 
+		    else
 		    {
 		    	wide = wide_user
 		    	narrow = narrow_user
 		    }
 
-		    if (sew < 16 || sew > 64) 
+		    if (sew < 16 || sew > 64)
 		    {
 		    	vfloat = false
 		    }
@@ -494,7 +494,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
 	var sew = 32
 	var nr = 1
 	var nf = 1
-	
+
 	var wide_user = false
 	var narrow_user = false
 	var wide = false
@@ -526,7 +526,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
 
     prob_tbl = new ArrayBuffer[(Int, () => InstSeq)]
     nseqs = seqnum
-    
+
 	  assert(lmul=="1" ||lmul=="2" ||lmul=="4" ||lmul=="8" || lmul == "f8" || lmul == "f4" || lmul == "f2", "Unsupported LMUL" )
 	  assert(sew==8 ||sew==16 ||sew==32 ||sew==64 || sew==128 || sew==256 || sew==512 || sew==1024 , "Unsupported SEW" )
 
@@ -546,11 +546,11 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
       while (!is_seqs_active_empty)
       {
         val seq = seqs_active(0)
-		    if(segment) 
+		    if(segment)
 		    {
 		      val inst = seq.next_inst()
 		      val branch_filter = (x: Operand) =>
-		    	  x.isInstanceOf[Label] && x.asInstanceOf[Label].label.indexOf("branch_patch") != -1 
+		    	  x.isInstanceOf[Label] && x.asInstanceOf[Label].label.indexOf("branch_patch") != -1
 			    val branch_patch = inst.operands.indexWhere(branch_filter)
 
 		      val jalr_filter1 = (x: Operand) =>
@@ -596,12 +596,12 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
         {
           seq.free_regs()
           seqs_active -= seq
-          if (seq.isInstanceOf[SeqVec]) 
+          if (seq.isInstanceOf[SeqVec])
             for (vinst <- seq.asInstanceOf[SeqVec].vinsts)
               update_stats(vinst)
         }
 
-        if (rand_range(0,99) < 10) 
+        if (rand_range(0,99) < 10)
           seqs_find_active()
       }
     }
@@ -611,7 +611,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
 
     if(!segment)
     {
-      resolve_jalr_las 
+      resolve_jalr_las
     }
     rand_permute(progsegs)
 
@@ -633,7 +633,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
   }
 
   def code_header(using_fpu: Boolean, using_vec: Boolean, using_rvv: Boolean, fprnd: Int, lmul:String, sew:Int, use_64bit_opcodes: Boolean) =
-  {    	
+  {
     assert(!(using_rvv && using_vec), "RISC-V Vector and Hwacha Vector instructions can not be used simultaneously")
     "\n" +
     (if (using_vec) "RVTEST_RV64UV\n"
@@ -642,7 +642,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
      else "RVTEST_RV64U\n") +
     "RVTEST_CODE_BEGIN\n" +
     "\n" +
-    (if (using_vec) init_vector() else "") + 
+    (if (using_vec) init_vector() else "") +
     (if (using_rvv) init_rvv_vector(lmul_user,sew_user) else "") + // Added RISC-V Vector functionality
     "\n" +
     "\tj test_start\n" +
@@ -661,13 +661,13 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
     "\n"
   }
 
-  def init_vector() = 
+  def init_vector() =
   {
     "\tli x1, " + used_vl + "\n" +
     "\tvsetcfg " + num_vxregs + ", " + num_vpregs + "\n" +
     "\tvsetvl x1,x1\n"
   }
-  
+
   //************************************* Added RISC-V Vector functionality *********************
   def init_rvv_vector(lmul:String, sew: Int) =
   {
@@ -799,7 +799,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
 
   def statistics(nseqs: Int, fprnd: Int, mix: Map[String, Int], vnseq: Int, vmemsize: Int, vfnum: Int, vecmix: Map[String, Int], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, use_vec: Boolean) =
   {
-    "--------------------------------------------------------------------------\n" + 
+    "--------------------------------------------------------------------------\n" +
     "-- Statistics for assembly code created by RISCV torture test generator --\n" +
     get_time() +
     "--------------------------------------------------------------------------\n" +
@@ -812,7 +812,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
     "---------- fprnd = " + fprnd + " ----------\n" +
     "---------- use_amo = " + use_amo + " ----------\n" +
     "---------- use_mul = " + use_mul + " ----------\n" +
-    "---------- use_div = " + use_div + " ----------\n" + 
+    "---------- use_div = " + use_div + " ----------\n" +
     "--------------------------------------------------------------------------\n\n" +
     "--------------------------------------------------------------------------\n" +
     sequence_stats(mix, vecmix, nseqs, vnseq, vfnum) +

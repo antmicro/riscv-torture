@@ -13,7 +13,7 @@ default: all
 asm_tests = \
 	test.S \
 
-extra_files = 
+extra_files =
 
 #--------------------------------------------------------------------
 # Build rules

@@ -45,16 +45,16 @@ class SeqFaX(xregs: HWRegPool, fregs_s: HWRegPool, fregs_d: HWRegPool, use_64bit
 
   for (op <- List(FCVT_D_W, FCVT_D_WU))
     candidates += seq_src1(op, fregs_d, xregs)
-    
+
   if (use_64bit_opcodes)
   {
     for (op <- List(FCVT_D_L, FCVT_D_LU, FMV_D_X))
       candidates += seq_src1(op, fregs_d, xregs)
   }
-  
+
   for (op <- List(FCVT_W_S, FCVT_WU_S, FMV_X_S))
     candidates += seq_src1(op, xregs, fregs_s)
-    
+
   if (use_64bit_opcodes)
   {
     for (op <- List(FCVT_L_S, FCVT_LU_S))
@@ -63,7 +63,7 @@ class SeqFaX(xregs: HWRegPool, fregs_s: HWRegPool, fregs_d: HWRegPool, use_64bit
 
   for (op <- List(FCVT_W_D, FCVT_WU_D))
     candidates += seq_src1(op, xregs, fregs_d)
-    
+
   if (use_64bit_opcodes)
   {
     for (op <- List(FCVT_L_D, FCVT_LU_D, FMV_X_D))
