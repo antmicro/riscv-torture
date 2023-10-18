@@ -45,7 +45,7 @@ class Inst(opcode: String, val operands: Array[Operand])
     if (is_rvv_vpermute) return "rvv_vpermute"
     // ************************************************************************************
     return "unknown" //Shouldn't return this.
-  
+
   }
   def opcode(): String = { return opcode }
 
@@ -204,13 +204,13 @@ class Inst(opcode: String, val operands: Array[Operand])
 
   def is_rvv_vamo =
     List("vamoswapei8.v", "vamoaddei8.v", "vamoxorei8.v", "vamoandei8.v", "vamoorei8.v",
-         "vamominei8.v", "vamomaxei8.v", "vamominuei8.v", "vamomaxuei8.v", "vamoswapei16.v", "vamoaddei16.v", "vamoxorei16.v", "vamoandei16.v", 
-         "vamoorei16.v", "vamominei16.v", "vamomaxei16.v", "vamominuei16.v", "vamomaxuei16.v", "vamoswapei32.v", "vamoaddei32.v", "vamoxorei32.v", 
+         "vamominei8.v", "vamomaxei8.v", "vamominuei8.v", "vamomaxuei8.v", "vamoswapei16.v", "vamoaddei16.v", "vamoxorei16.v", "vamoandei16.v",
+         "vamoorei16.v", "vamominei16.v", "vamomaxei16.v", "vamominuei16.v", "vamomaxuei16.v", "vamoswapei32.v", "vamoaddei32.v", "vamoxorei32.v",
          "vamoandei32.v", "vamoorei32.v", "vamominei32.v", "vamomaxei32.v", "vamominuei32.v", "vamomaxuei32.v", "vamoswapei64.v", "vamoaddei64.v",
          "vamoxorei64.v", "vamoandei64.v", "vamoorei64.v", "vamominei64.v", "vamomaxei64.v", "vamominuei64.v", "vamomaxuei64.v",
          "vamoswapei128.v", "vamoaddei128.v", "vamoxorei128.v", "vamoandei128.v", "vamoorei128.v", "vamominei128.v", "vamomaxei128.v",
          "vamominuei128.v", "vamomaxuei128.v").contains(opcode)
-  
+
   def is_rvv_vinteger =
     List("vadd.vv", "vadd.vx", "vadd.vi", "vsub.vv", "vsub.vx", "vrsub.vx", "vrsub.vi",
          "vwaddu.vv", "vwaddu.vx", "vwsubu.vv", "vwsubu.vx", "vwadd.vv", "vwadd.vx", "vwsub.vv", "vwsub.vx",

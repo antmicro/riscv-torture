@@ -64,9 +64,9 @@ class SeqFPU(fregs_s: HWRegPool, fregs_d: HWRegPool) extends InstSeq
 
   for (op <- List(FMADD_S, FNMADD_S, FMSUB_S, FNMSUB_S))
     candidates += seq_src3_s(op)
-  
+
   for (op <- List(FMADD_D, FNMADD_D, FMSUB_D, FNMSUB_D))
     candidates += seq_src3_d(op)
-  
+
   rand_pick(candidates)()
 }
