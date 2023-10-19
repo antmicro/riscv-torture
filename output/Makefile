@@ -22,7 +22,7 @@ extra_files =
 TOOLCHAIN_PREFIX=riscv64-unknown-elf-
 
 RISCV_GCC = $(TOOLCHAIN_PREFIX)gcc
-RISCV_GCC_OPTS = -nostdlib -nostartfiles -Wa,-march=RVIMAFDV -Wl,-g
+RISCV_GCC_OPTS = -nostdlib -nostartfiles -Wa,-march=RVIMAFDVZfh -Wl,-g
 RISCV_OBJDUMP = $(TOOLCHAIN_PREFIX)objdump --disassemble-all --section=.text --section=.data --section=.bss
 RISCV_SIM = spike --extension=hwacha
 
