@@ -3,7 +3,7 @@ package torture
 import scala.collection.mutable.ArrayBuffer
 import Rand._
 
-class SeqFaX(xregs: HWRegPool, fregs_s: HWRegPool, fregs_d: HWRegPool, use_64bit_opcodes: Boolean) extends InstSeq
+class SeqFaX(xregs: HWRegPool, fregs_s: HWRegPool, fregs_d: HWRegPool, fregs_h: HWRegPool, use_64bit_opcodes: Boolean) extends InstSeq
 {
   override val seqname = "fax"
   def seq_src1(op: Opcode, dst_pool: HWRegPool, src_pool: HWRegPool) = () =>
@@ -26,12 +26,19 @@ class SeqFaX(xregs: HWRegPool, fregs_s: HWRegPool, fregs_d: HWRegPool, use_64bit
   // Intra-FPU Instructions
   candidates += seq_src1(FCVT_S_D, fregs_s, fregs_d)
   candidates += seq_src1(FCVT_D_S, fregs_d, fregs_s)
+  candidates += seq_src1(FCVT_H_D, fregs_h, fregs_d)
+  candidates += seq_src1(FCVT_D_H, fregs_d, fregs_h)
+  candidates += seq_src1(FCVT_S_H, fregs_s, fregs_h)
+  candidates += seq_src1(FCVT_H_S, fregs_h, fregs_s)
 
   for (op <- List(FSGNJ_S, FSGNJN_S, FSGNJX_S))
     candidates += seq_src2(op, fregs_s, fregs_s)
 
   for (op <- List(FSGNJ_D, FSGNJN_D, FSGNJX_D))
     candidates += seq_src2(op, fregs_d, fregs_d)
+
+  for (op <- List(FSGNJ_H, FSGNJN_H, FSGNJX_H))
+    candidates += seq_src2(op, fregs_h, fregs_h)
 
   // X<->F Instructions
   for (op <- List(FCVT_S_W, FCVT_S_WU, FMV_S_X))
@@ -52,6 +59,15 @@ class SeqFaX(xregs: HWRegPool, fregs_s: HWRegPool, fregs_d: HWRegPool, use_64bit
       candidates += seq_src1(op, fregs_d, xregs)
   }
 
+  for (op <- List(FCVT_H_W, FCVT_H_WU))
+    candidates += seq_src1(op, fregs_h, xregs)
+
+  if (use_64bit_opcodes)
+  {
+    for (op <- List(FCVT_H_L, FCVT_H_LU, FMV_H_X))
+      candidates += seq_src1(op, fregs_h, xregs)
+  }
+
   for (op <- List(FCVT_W_S, FCVT_WU_S, FMV_X_S))
     candidates += seq_src1(op, xregs, fregs_s)
 
@@ -70,11 +86,23 @@ class SeqFaX(xregs: HWRegPool, fregs_s: HWRegPool, fregs_d: HWRegPool, use_64bit
       candidates += seq_src1(op, xregs, fregs_d)
   }
 
+  for (op <- List(FCVT_W_H, FCVT_WU_H))
+    candidates += seq_src1(op, xregs, fregs_h)
+
+  if (use_64bit_opcodes)
+  {
+    for (op <- List(FCVT_L_H, FCVT_LU_H, FMV_X_H))
+      candidates += seq_src1(op, xregs, fregs_h)
+  }
+
   for (op <- List(FEQ_S, FLT_S, FLE_S))
     candidates += seq_src2(op, xregs, fregs_s)
 
   for (op <- List(FEQ_D, FLT_D, FLE_D))
     candidates += seq_src2(op, xregs, fregs_d)
+
+  for (op <- List(FEQ_H, FLT_H, FLE_H))
+    candidates += seq_src2(op, xregs, fregs_h)
 
   rand_pick(candidates)()
 }

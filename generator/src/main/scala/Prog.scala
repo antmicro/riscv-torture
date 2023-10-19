@@ -49,7 +49,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
   //-----------------------------------------------------------
   val fregpools = fregs.extract_pools()
   val vregpools = vregs.extract_pools()
-  val (fregs_s, fregs_d) = (fregpools(0), fregpools(1))
+  val (fregs_s, fregs_d, fregs_h) = (fregpools(0), fregpools(1), fregpools(2))
   val (vxregs, vpregs, vsregs, varegs) = (vregpools(0), vregpools(1), vregpools(2), vregpools(3))
 
   val seqs = new ArrayBuffer[InstSeq]
@@ -517,10 +517,10 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
       "xmem" -> (() => new SeqMem(xregs, core_memory, use_amo, use_64bit_opcodes)),
       "xbranch" -> (() => new SeqBranch(xregs, use_64bit_opcodes)),
       "xalu" -> (() => new SeqALU(xregs, use_mul, use_div, use_64bit_opcodes)), //true means use_divider, TODO: make better
-      "fgen" -> (() => new SeqFPU(fregs_s, fregs_d)),
-      "fpmem" -> (() => new SeqFPMem(xregs, fregs_s, fregs_d, core_memory)),
-      "fax" -> (() => new SeqFaX(xregs, fregs_s, fregs_d, use_64bit_opcodes)),
-      "fdiv" -> (() => new SeqFDiv(fregs_s, fregs_d)),
+      "fgen" -> (() => new SeqFPU(fregs_s, fregs_d, fregs_h)),
+      "fpmem" -> (() => new SeqFPMem(xregs, fregs_s, fregs_d, fregs_h, core_memory)),
+      "fax" -> (() => new SeqFaX(xregs, fregs_s, fregs_d, fregs_h, use_64bit_opcodes)),
+      "fdiv" -> (() => new SeqFDiv(fregs_s, fregs_d, fregs_h)),
       "vec" -> (() => new SeqVec(xregs, vxregs, vpregs, vsregs, varegs, used_vl, veccfg)),
       "rvv" -> (() => new SeqRVV(rvvregs, xregs, fregs_s, fregs_d, core_memory, rv_vmem_unit, rv_vmem_const, rv_vmem_vect, rv_vmem_zvlsseg, rv_vinteger, rv_vfixed, vfloat, rv_vreduce, rv_vmask, rv_vpermute, rv_vamo, wide, narrow, vl, lmul, sew, nr, nf, mask, rm, frm, gen_config, multi_config)))       // Added RISC-V Vector functionality
 

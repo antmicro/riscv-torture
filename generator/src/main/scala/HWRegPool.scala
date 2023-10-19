@@ -127,6 +127,7 @@ class FRegsMaster extends ScalarRegPool with PoolsMaster
 
   val s_regpool = new FRegsPool(s_reg_num.toArray)
   val d_regpool = new FRegsPool(d_reg_num.toArray)
+  val h_regpool = new FRegsPool(h_reg_num.toArray)
   val regpools = ArrayBuffer(s_regpool.asInstanceOf[HWRegPool],
                  d_regpool.asInstanceOf[HWRegPool], h_regpool.asInstanceOf[HWRegPool])
   override val hwregs = regpools.map(_.hwregs).flatten

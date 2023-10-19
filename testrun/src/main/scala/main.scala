@@ -163,7 +163,7 @@ object TestRunner extends App
     val binFileName = asmFileName.dropRight(2)
     var process = ""
     val compiler = if (use_64bit_opcodes) "riscv64-unknown-elf-gcc" else "riscv32-unknown-elf-gcc"
-    val arch = if (use_64bit_opcodes) "rv64gcv" else "rv32gcv"
+    val arch = if (use_64bit_opcodes) "rv64gcvzfh" else "rv32gcvzfh"
     if (virtualMode)
     {
       println("Virtual mode")

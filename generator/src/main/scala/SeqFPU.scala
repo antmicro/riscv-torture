@@ -3,7 +3,7 @@ package torture
 import scala.collection.mutable.ArrayBuffer
 import Rand._
 
-class SeqFPU(fregs_s: HWRegPool, fregs_d: HWRegPool) extends InstSeq
+class SeqFPU(fregs_s: HWRegPool, fregs_d: HWRegPool, fregs_h: HWRegPool) extends InstSeq
 {
   override val seqname = "fgen"
   def seq_src1_s(op: Opcode) = () =>
@@ -54,6 +54,30 @@ class SeqFPU(fregs_s: HWRegPool, fregs_d: HWRegPool) extends InstSeq
     insts += op(dest, src1, src2, src3)
   }
 
+  def seq_src1_h(op: Opcode) = () =>
+  {
+    val src1 = reg_read_any(fregs_h)
+    val dest = reg_write(fregs_h, src1)
+    insts += op(dest, src1)
+  }
+
+  def seq_src2_h(op: Opcode) = () =>
+  {
+    val src1 = reg_read_any(fregs_h)
+    val src2 = reg_read_any(fregs_h)
+    val dest = reg_write(fregs_h, src1, src2)
+    insts += op(dest, src1, src2)
+  }
+
+  def seq_src3_h(op: Opcode) = () =>
+  {
+    val src1 = reg_read_any(fregs_h)
+    val src2 = reg_read_any(fregs_h)
+    val src3 = reg_read_any(fregs_h)
+    val dest = reg_write(fregs_h, src1, src2, src3)
+    insts += op(dest, src1, src2, src3)
+  }
+
   val candidates = new ArrayBuffer[() => insts.type]
 
   for (op <- List(FADD_S, FSUB_S, FMUL_S, FMIN_S, FMAX_S))
@@ -62,11 +86,17 @@ class SeqFPU(fregs_s: HWRegPool, fregs_d: HWRegPool) extends InstSeq
   for (op <- List(FADD_D, FSUB_D, FMUL_D, FMIN_D, FMAX_D))
     candidates += seq_src2_d(op)
 
+  for (op <- List(FADD_H, FSUB_H, FMUL_H, FMIN_H, FMAX_H))
+    candidates += seq_src2_h(op)
+
   for (op <- List(FMADD_S, FNMADD_S, FMSUB_S, FNMSUB_S))
     candidates += seq_src3_s(op)
 
   for (op <- List(FMADD_D, FNMADD_D, FMSUB_D, FNMSUB_D))
     candidates += seq_src3_d(op)
+
+  for (op <- List(FMADD_H, FNMADD_H, FMSUB_H, FNMSUB_H))
+    candidates += seq_src3_h(op)
 
   rand_pick(candidates)()
 }
