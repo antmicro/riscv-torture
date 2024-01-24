@@ -407,7 +407,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
 		    	narrow = narrow_user
 		    }
 
-		    if (sew < 16 || sew > 64)
+		    if (sew < 8 || sew > 64)
 		    {
 		    	vfloat = false
 		    }
