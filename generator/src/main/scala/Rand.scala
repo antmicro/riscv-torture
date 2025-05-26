@@ -45,9 +45,9 @@ object Rand
 		lmul = rand_pick(list_lmul)
 		lmul
 	}
-	def rand_sew(): Int =
+	def rand_sew(max_sew: Int): Int =
 	{
-		sew = rand_pick(list_sew)
+        sew = rand_pick(list_sew.filter(x => x <= max_sew))
 		sew
 	}
 	def rand_nf(): Int =
@@ -60,16 +60,16 @@ object Rand
 		nr = rand_pick(list_nr)
 		nr
 	}
-	def configure(vl: Int, vlen: Int): (String, Int, Int, Int) = 
+	def configure(vl: Int, vlen: Int, max_sew: Int): (String, Int, Int, Int) = 
   {
 		val map_lmul = Map("8"->8.toFloat,"4"->4.toFloat, "2"->2.toFloat, "1"->1.toFloat, "f2"->(0.5).toFloat,
 			               "f4"->(0.25).toFloat, "f8"->(0.125).toFloat)
 		val lmul = rand_lmul()
-		var sew = rand_sew()
+		var sew = rand_sew(max_sew)
 		val nr = rand_nr()
 		val nf = rand_nf()
     this.vl = vl
-		while((map_lmul(lmul)*(vlen.toFloat/sew.toFloat))<1 || sew > vlen){sew = rand_sew()}
+		while((map_lmul(lmul)*(vlen.toFloat/sew.toFloat))<1 || sew > vlen){sew = rand_sew(max_sew)}
 		return (lmul, sew, nr, nf)
 	}
 

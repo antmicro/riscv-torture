@@ -386,7 +386,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
 
 		    gen_config = true
 		    vl = rand_range(0, max_vl)
-		    val config = configure(vl, vlen)
+		    val config = configure(vl, vlen, sew)
 
 		    lmul = config._1
 		    sew = config._2
