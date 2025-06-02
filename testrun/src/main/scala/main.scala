@@ -256,9 +256,9 @@ object TestRunner extends App
   {
     val debugArgs = if(debug && output) Seq("-d") else Seq()
     val simArgs   = if (hwacha) Seq("--extension=hwacha") else Seq()
-    val simISAArgs  =  if (use_64bit_opcodes) Seq("--isa=RV64gcV_zfh") else Seq("--isa=RV32gcV_zfh")
+    val simISAArgs  =  if (use_64bit_opcodes) Seq("--isa=RV64gcV_zfh_Zvl512b_Zve64d") else Seq("--isa=RV32gcV_zfh_Zvl512b_Zve64d")
 
-    runSim("spike", debugArgs++simISAArgs++simArgs++Seq("--varch=vlen:512,elen:64"), bin+".spike.sig", output, bin+".spike.out", Seq(), bin)
+    runSim("spike", debugArgs++simISAArgs++simArgs, bin+".spike.sig", output, bin+".spike.out", Seq(), bin)
   }
 
   def runSimulators(bin: String, simulators: Seq[(String, (String, Boolean, Boolean, Boolean) => String)], debug: Boolean, output: Boolean, dumpWaveform: Boolean): Seq[(String, (String, (String, Boolean, Boolean, Boolean) => String), Result)] =
