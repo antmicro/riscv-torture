@@ -162,8 +162,9 @@ object TestRunner extends App
     assert(asmFileName.endsWith(".S"), println("Filename does not end in .S"))
     val binFileName = asmFileName.dropRight(2)
     var process = ""
-    val compiler = if (use_64bit_opcodes) "riscv64-unknown-elf-gcc" else "riscv32-unknown-elf-gcc"
+    val compiler = "riscv64-unknown-elf-gcc"
     val arch = if (use_64bit_opcodes) "rv64gcvzfh" else "rv32gcvzfh"
+    val abi = if (use_64bit_opcodes) "lp64d" else "ilp32f"
     if (virtualMode)
     {
       println("Virtual mode")
@@ -174,7 +175,7 @@ object TestRunner extends App
     else
     {
       println("Physical mode")
-      process = compiler + " -nostdlib -nostartfiles -Wa,-march=" + arch + " -Wl,-g -I./env/p -T./env/p/link.ld " + asmFileName + " -o " + binFileName
+      process = compiler + " -nostdlib -nostartfiles -Wa, -march=" + arch + " -mabi=" + abi + " -Wl,-g -I./env/p -T./env/p/link.ld " + asmFileName + " -o " + binFileName
     }
     val pb = Process(process)
     val exitCode = pb.!
@@ -183,7 +184,7 @@ object TestRunner extends App
 
   def dumpFromBin(binFileName: String, use_64bit_opcodes: Boolean): Option[String] = {
     val dumpFileName = binFileName + ".dump"
-    val objdump = if (use_64bit_opcodes) "riscv64-unknown-elf-objdump" else "riscv32-unknown-elf-objdump"
+    val objdump = "riscv64-unknown-elf-objdump"
     val pd = Process(objdump + " --disassemble-all --section=.text --section=.data --section=.bss " + binFileName)
     val dump = pd.!!
     val fw = new FileWriter(dumpFileName)
