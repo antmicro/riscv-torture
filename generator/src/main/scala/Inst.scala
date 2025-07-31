@@ -45,6 +45,7 @@ class Inst(opcode: String, val operands: Array[Operand])
     if (is_rvv_vpermute) return "rvv_vpermute"
     // ***** RISC-V Bit Manipulation Ext (v1.0) --- Optypes ******************************
     if (is_bitmanip_zba) return "bitmanip_zba"
+    if (is_bitmanip_zbb) return "bitmanip_zbb"
     // ************************************************************************************
     return "unknown" //Shouldn't return this.
 
@@ -274,6 +275,11 @@ class Inst(opcode: String, val operands: Array[Operand])
   def is_bitmanip_zba =
     List("add.uw", "sh1add", "sh1add.uw", "sh2add", "sh2add.uw", "sh3add", "sh3add.uw", "slli.uw").contains(opcode)
 
+  def is_bitmanip_zbb =
+    List("andn", "orn", "xnor", "clz", "clzw", "ctz", "ctzw", "cpop", "cpopw", "max", "maxu",
+         "min", "minu", "sext.b", "sext.h", "zext.h", "rol", "rolw", "ror", "rori", "roriw",
+         "rorw", "orc.b", "rev8").contains(opcode)
+
   // ******************************************************************************************
 
   override def toString =
@@ -398,6 +404,32 @@ object SH2ADD_UW extends Opcode("sh2add.uw")
 object SH3ADD extends Opcode("sh3add")
 object SH3ADD_UW extends Opcode("sh3add.uw")
 object SLLI_UW extends Opcode("slli.uw")
+
+// Zbb
+object ANDN extends Opcode("andn")
+object ORN extends Opcode("orn")
+object XNOR extends Opcode("xnor")
+object CLZ extends Opcode("clz")
+object CLZW extends Opcode("clzw")
+object CTZ extends Opcode("ctz")
+object CTZW extends Opcode("ctzw")
+object CPOP extends Opcode("cpop")
+object CPOPW extends Opcode("cpopw")
+object MAX extends Opcode("max")
+object MAXU extends Opcode("maxu")
+object MIN extends Opcode("min")
+object MINU extends Opcode("minu")
+object SEXT_B extends Opcode("sext.b")
+object SEXT_H extends Opcode("sext.h")
+object ZEXT_H extends Opcode("zext.h")
+object ROL extends Opcode("rol")
+object ROLW extends Opcode("rolw")
+object ROR extends Opcode("ror")
+object RORI extends Opcode("rori")
+object RORIW extends Opcode("roriw")
+object RORW extends Opcode("rorw")
+object ORC_B extends Opcode("orc.b")
+object REV8 extends Opcode("rev8")
 
 object FLW extends Opcode("flw")
 object FLD extends Opcode("fld")

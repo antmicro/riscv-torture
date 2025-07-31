@@ -64,6 +64,7 @@ torture.generator.rvv.nr          1     # RISC-V vector (v0.9) NR setting; valid
 torture.generator.rvv.nf          1     # RISC-V vector (v0.9) NF setting; valid: 1, *(2, 3, 4, 5, 6, 7, 8) => (for Zvlsseg)
 
 torture.generator.bitmanip.zba    true
+torture.generator.bitmanip.zbb    true
 
 torture.testrun.maxcycles         1000000 # Maximum number of cycle for RTL and C simulation
 torture.testrun.virtual           false   # To run the test in virtual mode
