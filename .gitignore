@@ -1,4 +1,9 @@
 .*.swp
+.vscode/
 output/test*
 output/failedtests
-*target/
+target/
+project/metals.sbt
+project/project/
+.bloop/
+.metals/
