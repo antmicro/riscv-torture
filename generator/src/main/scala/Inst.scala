@@ -43,6 +43,8 @@ class Inst(opcode: String, val operands: Array[Operand])
     if (is_rvv_vreduce) return "rvv_vreduce"
     if (is_rvv_vmask) return "rvv_vmask"
     if (is_rvv_vpermute) return "rvv_vpermute"
+    // ***** RISC-V Bit Manipulation Ext (v1.0) --- Optypes ******************************
+    if (is_bitmanip_zba) return "bitmanip_zba"
     // ************************************************************************************
     return "unknown" //Shouldn't return this.
 
@@ -267,6 +269,11 @@ class Inst(opcode: String, val operands: Array[Operand])
 	       "vslidedown.vx", "vslidedown.vi", "vslide1up.vx", "vfslide1up.vf", "vslide1down.vx", "vfslide1down.vf",
 	       "vrgather.vv", "vrgather.vx", "vrgather.vi", "vcompress.vm", "vmv1r.v", "vmv2r.v", "vmv4r.v", "vmv8r.v").contains(opcode)
 
+  // ***** RISC-V Bit Manipulation Ext (v1.0) --- Opcode Lists ********************************
+
+  def is_bitmanip_zba =
+    List("add.uw", "sh1add", "sh1add.uw", "sh2add", "sh2add.uw", "sh3add", "sh3add.uw", "slli.uw").contains(opcode)
+
   // ******************************************************************************************
 
   override def toString =
@@ -381,6 +388,16 @@ object FRRM extends Opcode("frrm")
 object FSRM extends Opcode("fsrm")
 object FRCSR extends Opcode("frcsr")
 object FSCSR extends Opcode("fscsr")
+
+// Zba
+object ADD_UW extends Opcode("add.uw")
+object SH1ADD extends Opcode("sh1add")
+object SH1ADD_UW extends Opcode("sh1add.uw")
+object SH2ADD extends Opcode("sh2add")
+object SH2ADD_UW extends Opcode("sh2add.uw")
+object SH3ADD extends Opcode("sh3add")
+object SH3ADD_UW extends Opcode("sh3add.uw")
+object SLLI_UW extends Opcode("slli.uw")
 
 object FLW extends Opcode("flw")
 object FLD extends Opcode("fld")

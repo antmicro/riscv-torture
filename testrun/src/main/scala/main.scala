@@ -163,7 +163,7 @@ object TestRunner extends App
     val binFileName = asmFileName.dropRight(2)
     var process = ""
     val compiler = "riscv64-unknown-elf-gcc"
-    val arch = if (use_64bit_opcodes) "rv64gcvzfh" else "rv32gcvzfh"
+    val arch = if (use_64bit_opcodes) "rv64gcvzfh_zba" else "rv32gcvzfh_zba"
     val abi = if (use_64bit_opcodes) "lp64d" else "ilp32f"
     if (virtualMode)
     {
@@ -257,7 +257,7 @@ object TestRunner extends App
   {
     val debugArgs = if(debug && output) Seq("-d") else Seq()
     val simArgs   = if (hwacha) Seq("--extension=hwacha") else Seq()
-    val simISAArgs  =  if (use_64bit_opcodes) Seq("--isa=RV64gcV_zfh_Zvl512b_Zve64d") else Seq("--isa=RV32gcV_zfh_Zvl512b_Zve64d")
+    val simISAArgs  =  if (use_64bit_opcodes) Seq("--isa=RV64gcV_zfh_Zvl512b_Zve64d_Zba") else Seq("--isa=RV32gcV_zfh_Zvl512b_Zve64d_Zba")
 
     runSim("spike", debugArgs++simISAArgs++simArgs, bin+".spike.sig", output, bin+".spike.out", Seq(), bin)
   }

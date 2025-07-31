@@ -70,7 +70,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
     ("fpfma"),("fpmem"),("fpcvt"),("fpmisc"),("Hwacha_vmem"),("Hwacha_vamo"),("Hwacha_valu"),
     ("Hwacha_vmisc"),("Hwacha_vfpalu"),("Hwacha_vfpfma"),("Hwacha_vfpcvt"),("Hwacha_vsmem"),("Hwacha_vshared"),("Hwacha_vpred"),("Hwacha_vcmp"),
     ("rvv_vmem_unit"),("rvv_vmem_const"),("rvv_vmem_vect"),("rvv_vinteger"),("rvv_vfixed"),
-    ("rvv_vfloat"),("rvv_vreduce"),("rvv_vmask"),("rvv_vpermute"),("rvv_vamo"),("rvv_vmem_zvlsseg"),("rvv_vconfig"),("unknown")))
+    ("rvv_vfloat"),("rvv_vreduce"),("rvv_vmask"),("rvv_vpermute"),("rvv_vamo"),("rvv_vmem_zvlsseg"),("rvv_vconfig"),("bitmanip_zba"),("unknown")))
     {
       catstats(cat)=0
       opstats(cat) = new HashMap[String,Int].withDefaultValue(0)
@@ -186,7 +186,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
     {
       val seqhash = HashMap("xmem"->1,"xbranch"->2,"xalu"->3,"vmem"->4,        // Added RISC-V Vector functionality
       "fgen"->5,"fpmem"->6,"fax"->7,"fdiv"->8,"vec"->9,"vonly"->10,"valu"->11,"rvv_vmem_unit"->13,"rvv_vmem_const"->14,"rvv_vmem_vect"->15,"rvv_vinteger"->16,"rvv_vfixed"->17,"rvv_vfloat"->18,"rvv_vreduce"->19,"rvv_vmask"->20,"rvv_vpermute"->21, "rvv_vamo"->22, "rvv_vmem_zvlsseg"->23, "rvv_vconfig"->24,
-      "unknown"->25).withDefaultValue(100)
+      "bitmanip_zba"->25,"unknown"->26).withDefaultValue(100)
       if (seqhash(seq1._1) == 100 && seqhash(seq2._1) == 100) return (seq1._1 < seq2._1)
       return seqhash(seq1._1) < seqhash(seq2._1)
     }
@@ -238,7 +238,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
       val cathash = HashMap("alu"->1,"cmp"->2,"branch"->3,"jmp"->4,"jalr"->5,
         "la"->6,"mem"->7,"amo"->8,"misc"->9,"fpalu"->10,"fpcmp"->11,"fpfma"->12,
         "fpmem"->13,"fpcvt"->14,"fpmisc"->15,"Hwacha_vmem"->16,"Hwacha_vamo"->17,"Hwacha_valu"->18,"Hwacha_vfpalu"->19,
-        "Hwacha_vfpfma"->20,"Hwacha_vfpcvt"->21,"Hwacha_vsmem"->22,"Hwacha_vshared"->23,"Hwacha_vpred"->24,"Hwacha_vcmp"->25,"Hwacha_vmisc"->26,"rvv_vmem_unit"->27,"rvv_vmem_const"->28,"rvv_vmem_vect"->29,"rvv_vinteger"->30,"rvv_vfixed"->31,"rvv_vfloat"->32,"rvv_vreduce"->33,"rvv_vmask"->34,"rvv_vpermute"->35, "rvv_vamo"->36, "rvv_vmem_zvlsseg"->37,"rvv_vconfig"->38, "unknown"->39) // Added RISC-V Vector functionality
+        "Hwacha_vfpfma"->20,"Hwacha_vfpcvt"->21,"Hwacha_vsmem"->22,"Hwacha_vshared"->23,"Hwacha_vpred"->24,"Hwacha_vcmp"->25,"Hwacha_vmisc"->26,"rvv_vmem_unit"->27,"rvv_vmem_const"->28,"rvv_vmem_vect"->29,"rvv_vinteger"->30,"rvv_vfixed"->31,"rvv_vfloat"->32,"rvv_vreduce"->33,"rvv_vmask"->34,"rvv_vpermute"->35, "rvv_vamo"->36, "rvv_vmem_zvlsseg"->37,"rvv_vconfig"->38, "bitmanip_zba"->39, "unknown"->40) // Added RISC-V Vector functionality
       return cathash(cat1._1) < cathash(cat2._1)
     }
 
@@ -341,6 +341,12 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
 	  s += "-------------- Total RVV Permute Instructions =  " + 20 + " --\n"
 	  s += "-------------- Generated RVV Permute Instructions =  " + rvv_permute_inst + " --\n"
 	  s += "-------------- RVV Permute Instructions Coverage =  " + (rvv_permute_inst.toFloat/20.toFloat)*100 + "% --\n"
+
+	  val bitmanip_zba_inst = opstats("bitmanip_zba").values.count(_ > 0)
+    s += "--------------------------------------------------------------------------\n"
+    s += "-------------- Total Bit Manipulation Zba Instructions =  " + 8 + " --\n"
+    s += "-------------- Generated Bit Manipulation Zba Instructions =  " + bitmanip_zba_inst + " --\n"
+    s += "-------------- Bit Manipulation Zba Instructions Coverage =  " + (bitmanip_zba_inst.toFloat/8.toFloat)*100 + "% --\n"
 
 		s += "\n--------------------------------------------------------------------------\n"
     s += "------------------------ Opcode Usage ------------------------------------\n"
@@ -502,7 +508,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
   var vfloat = false
 //*****************************************************************************
 
-  def code_body(seqnum: Int, mix: Map[String, Int], veccfg: Map[String, String], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, segment: Boolean, rv_vmem_unit: Boolean,rv_vmem_const: Boolean,rv_vmem_vect: Boolean, rv_vmem_zvlsseg: Boolean,rv_vinteger: Boolean, rv_vfixed: Boolean, rv_vfloat: Boolean, rv_vreduce: Boolean, rv_vmask: Boolean, rv_vpermute: Boolean, rv_vamo: Boolean, rv_wide: Boolean, rv_narrow: Boolean, vlen_import: Int, lmul_import: String, sew_import: Int, nr_import: Int, nf_import: Int, mask:Boolean,  multi_config_import: Boolean, use_64bit_opcodes: Boolean) =
+  def code_body(seqnum: Int, mix: Map[String, Int], veccfg: Map[String, String], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, use_zba: Boolean, segment: Boolean, rv_vmem_unit: Boolean,rv_vmem_const: Boolean,rv_vmem_vect: Boolean, rv_vmem_zvlsseg: Boolean,rv_vinteger: Boolean, rv_vfixed: Boolean, rv_vfloat: Boolean, rv_vreduce: Boolean, rv_vmask: Boolean, rv_vpermute: Boolean, rv_vamo: Boolean, rv_wide: Boolean, rv_narrow: Boolean, vlen_import: Int, lmul_import: String, sew_import: Int, nr_import: Int, nf_import: Int, mask:Boolean,  multi_config_import: Boolean, use_64bit_opcodes: Boolean) =
   {
   	multi_config = multi_config_import
   	vlen = vlen_import
@@ -522,7 +528,9 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
       "fax" -> (() => new SeqFaX(xregs, fregs_s, fregs_d, fregs_h, use_64bit_opcodes)),
       "fdiv" -> (() => new SeqFDiv(fregs_s, fregs_d, fregs_h)),
       "vec" -> (() => new SeqVec(xregs, vxregs, vpregs, vsregs, varegs, used_vl, veccfg)),
-      "rvv" -> (() => new SeqRVV(rvvregs, xregs, fregs_s, fregs_d, core_memory, rv_vmem_unit, rv_vmem_const, rv_vmem_vect, rv_vmem_zvlsseg, rv_vinteger, rv_vfixed, vfloat, rv_vreduce, rv_vmask, rv_vpermute, rv_vamo, wide, narrow, vl, lmul, sew, nr, nf, mask, rm, frm, gen_config, multi_config)))       // Added RISC-V Vector functionality
+      "rvv" -> (() => new SeqRVV(rvvregs, xregs, fregs_s, fregs_d, core_memory, rv_vmem_unit, rv_vmem_const, rv_vmem_vect, rv_vmem_zvlsseg, rv_vinteger, rv_vfixed, vfloat, rv_vreduce, rv_vmask, rv_vpermute, rv_vamo, wide, narrow, vl, lmul, sew, nr, nf, mask, rm, frm, gen_config, multi_config)),       // Added RISC-V Vector functionality
+      "bitmanip" -> (() => new SeqBitmanip(xregs, use_zba, use_64bit_opcodes)),
+    )
 
     prob_tbl = new ArrayBuffer[(Int, () => InstSeq)]
     nseqs = seqnum
@@ -768,7 +776,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
 
   def data_footer() = ""
 
-  def generate(nseqs: Int, fprnd: Int, mix: Map[String, Int], veccfg: Map[String, String], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, segment : Boolean, loop: Boolean, loop_size: Int, rv_vmem_unit: Boolean,rv_vmem_const: Boolean,rv_vmem_vect: Boolean, rv_vmem_zvlsseg: Boolean, rv_vinteger: Boolean, rv_vfixed: Boolean, rv_vfloat: Boolean, rv_vreduce: Boolean, rv_vmask: Boolean, rv_vpermute: Boolean, rv_vamo: Boolean, rv_wide: Boolean, rv_narrow: Boolean, vlen: Int, lmul_import: String, sew_import: Int, nr_import: Int, nf_import: Int, mask :Boolean, multi_config: Boolean, use_64bit_opcodes: Boolean) =
+  def generate(nseqs: Int, fprnd: Int, mix: Map[String, Int], veccfg: Map[String, String], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, use_zba: Boolean, segment : Boolean, loop: Boolean, loop_size: Int, rv_vmem_unit: Boolean,rv_vmem_const: Boolean,rv_vmem_vect: Boolean, rv_vmem_zvlsseg: Boolean, rv_vinteger: Boolean, rv_vfixed: Boolean, rv_vfloat: Boolean, rv_vreduce: Boolean, rv_vmask: Boolean, rv_vpermute: Boolean, rv_vamo: Boolean, rv_wide: Boolean, rv_narrow: Boolean, vlen: Int, lmul_import: String, sew_import: Int, nr_import: Int, nf_import: Int, mask :Boolean, multi_config: Boolean, use_64bit_opcodes: Boolean) =
   {
     // Check if generating any FP operations or Vec unit stuff
     val using_vec = mix.filterKeys(List("vec") contains _).values.reduce(_+_) > 0
@@ -789,7 +797,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
 
     header(nseqs) +
     code_header(using_fpu, using_vec, using_rvv, fprnd, lmul, sew, use_64bit_opcodes) +
-    code_body(nseqs, mix, veccfg, use_amo, use_mul, use_div, segment, rv_vmem_unit, rv_vmem_const, rv_vmem_vect, rv_vmem_zvlsseg, rv_vinteger, rv_vfixed, rv_vfloat, rv_vreduce, rv_vmask, rv_vpermute, rv_vamo, rv_wide, rv_narrow, vlen, lmul, sew, nr, nf, mask, multi_config, use_64bit_opcodes) +
+    code_body(nseqs, mix, veccfg, use_amo, use_mul, use_div, use_zba, segment, rv_vmem_unit, rv_vmem_const, rv_vmem_vect, rv_vmem_zvlsseg, rv_vinteger, rv_vfixed, rv_vfloat, rv_vreduce, rv_vmask, rv_vpermute, rv_vamo, rv_wide, rv_narrow, vlen, lmul, sew, nr, nf, mask, multi_config, use_64bit_opcodes) +
     code_footer(using_fpu, using_vec, using_rvv, loop,lmul, sew) +
     data_header() +
     data_input(using_fpu, using_vec, using_rvv) +
@@ -797,7 +805,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
     data_footer()
   }
 
-  def statistics(nseqs: Int, fprnd: Int, mix: Map[String, Int], vnseq: Int, vmemsize: Int, vfnum: Int, vecmix: Map[String, Int], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, use_vec: Boolean) =
+  def statistics(nseqs: Int, fprnd: Int, mix: Map[String, Int], vnseq: Int, vmemsize: Int, vfnum: Int, vecmix: Map[String, Int], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, use_zba: Boolean, use_vec: Boolean) =
   {
     "--------------------------------------------------------------------------\n" +
     "-- Statistics for assembly code created by RISCV torture test generator --\n" +
@@ -813,6 +821,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
     "---------- use_amo = " + use_amo + " ----------\n" +
     "---------- use_mul = " + use_mul + " ----------\n" +
     "---------- use_div = " + use_div + " ----------\n" +
+    "---------- use_zba = " + use_zba + " ----------\n" +
     "--------------------------------------------------------------------------\n\n" +
     "--------------------------------------------------------------------------\n" +
     sequence_stats(mix, vecmix, nseqs, vnseq, vfnum) +

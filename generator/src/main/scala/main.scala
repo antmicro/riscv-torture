@@ -39,6 +39,7 @@ object Generator extends App
     val use_amo           = (config.getProperty("torture.generator.amo", "true").toLowerCase == "true")
     val use_mul           = (config.getProperty("torture.generator.mul", "true").toLowerCase == "true")
     val use_div           = (config.getProperty("torture.generator.divider", "true").toLowerCase == "true")
+    val bitmanip_zba      = (config.getProperty("torture.generator.bitmanip.zba", "false").toLowerCase == "true")
     val mix               = config.filterKeys(_ contains "torture.generator.mix").map { case (k,v) => (k.split('.')(3), v.toInt) }.asInstanceOf[Map[String,Int]]
     val vec               = config.filterKeys(_ contains "torture.generator.vec").map { case (k,v) => (k.split('.').drop(3).reduce(_+"."+_), v) }.asInstanceOf[Map[String,String]]
 
@@ -69,13 +70,13 @@ object Generator extends App
     val segment   = (config.getProperty("torture.generator.segment", "true").toLowerCase == "true")
     val loop      = (config.getProperty("torture.generator.loop", "true").toLowerCase == "true")
     val loop_size = config.getProperty("torture.generator.loop_size", "256").toInt
-    generate(nseqs, memsize, fprnd, mix, vec, use_amo, use_mul, use_div, outFileName, segment, loop, loop_size, rv_vmem_unit,rv_vmem_const,rv_vmem_vect,rv_vmem_zvlsseg,rv_vinteger,rv_vfixed,rv_vfloat, rv_vreduce,rv_vmask,rv_vpermute,rv_vamo,rv_wide,rv_narrow, vlen, lmul, sew, nr, nf, mask, multi_config, use_64bit_opcodes)
+    generate(nseqs, memsize, fprnd, mix, vec, use_amo, use_mul, use_div, bitmanip_zba, outFileName, segment, loop, loop_size, rv_vmem_unit,rv_vmem_const,rv_vmem_vect,rv_vmem_zvlsseg,rv_vinteger,rv_vfixed,rv_vfloat, rv_vreduce,rv_vmask,rv_vpermute,rv_vamo,rv_wide,rv_narrow, vlen, lmul, sew, nr, nf, mask, multi_config, use_64bit_opcodes)
   }
 
-  def generate(nseqs: Int, memsize: Int, fprnd : Int, mix: Map[String,Int], veccfg: Map[String,String], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, outFileName: String, segment : Boolean, loop : Boolean, loop_size : Int, rv_vmem_unit: Boolean, rv_vmem_const: Boolean, rv_vmem_vect: Boolean,rv_vmem_zvlsseg : Boolean, rv_vinteger: Boolean, rv_vfixed: Boolean, rv_vfloat: Boolean, rv_vreduce: Boolean, rv_vmask: Boolean, rv_vpermute: Boolean, rv_vamo: Boolean , rv_wide: Boolean, rv_narrow: Boolean, vlen: Int, lmul: String, sew: Int, nr: Int, nf: Int, mask:Boolean, multi_config: Boolean, use_64bit_opcodes: Boolean): String =
+  def generate(nseqs: Int, memsize: Int, fprnd : Int, mix: Map[String,Int], veccfg: Map[String,String], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, use_zba: Boolean, outFileName: String, segment : Boolean, loop : Boolean, loop_size : Int, rv_vmem_unit: Boolean, rv_vmem_const: Boolean, rv_vmem_vect: Boolean,rv_vmem_zvlsseg : Boolean, rv_vinteger: Boolean, rv_vfixed: Boolean, rv_vfloat: Boolean, rv_vreduce: Boolean, rv_vmask: Boolean, rv_vpermute: Boolean, rv_vamo: Boolean , rv_wide: Boolean, rv_narrow: Boolean, vlen: Int, lmul: String, sew: Int, nr: Int, nf: Int, mask:Boolean, multi_config: Boolean, use_64bit_opcodes: Boolean): String =
   {
     assert (mix.values.sum == 100, println("The instruction mix specified in config does not add up to 100%"))
-    assert (mix.keys.forall(List("xmem","xbranch","xalu","fgen","fpmem","fax","fdiv","vec", "rvv") contains _), println("The instruction mix specified in config contains an unknown sequence type name"))
+    assert (mix.keys.forall(List("xmem","xbranch","xalu","fgen","fpmem","fax","fdiv","vec", "rvv", "bitmanip") contains _), println("The instruction mix specified in config contains an unknown sequence type name"))
 
     val vmemsize = veccfg.getOrElse("memsize", "32").toInt
     val vnseq = veccfg.getOrElse("seq", "100").toInt
@@ -88,13 +89,13 @@ object Generator extends App
     ProgSeg.cnt = 0
     SeqVec.cnt = 0
     // Added RISC-V Vector functionality
-    val s = prog.generate(nseqs, fprnd, mix, veccfg, use_amo, use_mul, use_div, segment, loop, loop_size,rv_vmem_unit,rv_vmem_const,rv_vmem_vect,rv_vmem_zvlsseg,rv_vinteger,rv_vfixed,rv_vfloat, rv_vreduce,rv_vmask,rv_vpermute, rv_vamo, rv_wide,rv_narrow,vlen, lmul, sew, nr,nf,mask, multi_config, use_64bit_opcodes)
+    val s = prog.generate(nseqs, fprnd, mix, veccfg, use_amo, use_mul, use_div, use_zba, segment, loop, loop_size,rv_vmem_unit,rv_vmem_const,rv_vmem_vect,rv_vmem_zvlsseg,rv_vinteger,rv_vfixed,rv_vfloat, rv_vreduce,rv_vmask,rv_vpermute, rv_vamo, rv_wide,rv_narrow,vlen, lmul, sew, nr,nf,mask, multi_config, use_64bit_opcodes)
 
     val oname = "output/" + outFileName + ".S"
     val fw = new FileWriter(oname)
     fw.write(s)
     fw.close()
-    val stats = prog.statistics(nseqs,fprnd,mix,vnseq,vmemsize,vfnum,vecmix,use_amo,use_mul,use_div,use_vec)
+    val stats = prog.statistics(nseqs,fprnd,mix,vnseq,vmemsize,vfnum,vecmix,use_amo,use_mul,use_div,use_zba,use_vec)
     val sname = "output/" + outFileName + ".stats"
     val fw2 = new FileWriter(sname)
     fw2.write(stats)

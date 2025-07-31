@@ -16,7 +16,8 @@ torture.generator.mix.fpmem       10    # scalar floating-point memory instructi
 torture.generator.mix.fax         10    # scalar floating-point comparison/conversion instructions percentage
 torture.generator.mix.fdiv        10    # scalar floating-point division instructions percentage
 torture.generator.mix.vec         0     # Hwacha vector instructions percentage
-torture.generator.mix.rvv         30    # RISC-V vector (v0.9) instructions percentage
+torture.generator.mix.rvv         20    # RISC-V vector (v0.9) instructions percentage
+torture.generator.mix.bitmanip    10    # RISC-V bit manipulation (v1.0) instructions percentage
 
 torture.generator.vec.vf          1
 torture.generator.vec.seq         10
@@ -61,6 +62,8 @@ torture.generator.rvv.lmul        2     # RISC-V vector (v0.9) LMUL setting; val
 torture.generator.rvv.sew         32    # RISC-V vector (v0.9) SEW setting; valid: *8(vfloat => false), 16, 32, *64(wide/narrow => false for Spike), *(128, 256, 512, 1024) => (unsupported on Spike)
 torture.generator.rvv.nr          1     # RISC-V vector (v0.9) NR setting; valid: 1, 2, 4, 8
 torture.generator.rvv.nf          1     # RISC-V vector (v0.9) NF setting; valid: 1, *(2, 3, 4, 5, 6, 7, 8) => (for Zvlsseg)
+
+torture.generator.bitmanip.zba    true
 
 torture.testrun.maxcycles         1000000 # Maximum number of cycle for RTL and C simulation
 torture.testrun.virtual           false   # To run the test in virtual mode
