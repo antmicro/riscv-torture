@@ -3,7 +3,7 @@ package torture
 import scala.collection.mutable.ArrayBuffer
 import Rand._
 
-class SeqBitmanip(xregs: HWRegPool, use_zba: Boolean, use_zbb: Boolean, use_64bit_opcodes: Boolean) extends InstSeq //TODO: better configuration
+class SeqBitmanip(xregs: HWRegPool, use_zba: Boolean, use_zbb: Boolean, use_zbc: Boolean, use_zbs: Boolean, use_64bit_opcodes: Boolean) extends InstSeq //TODO: better configuration
 {
   override val seqname = "bitmanip"
 
@@ -90,6 +90,20 @@ class SeqBitmanip(xregs: HWRegPool, use_zba: Boolean, use_zbb: Boolean, use_64bi
     oplist += (ROL, ROR)
     unary_oplist += (ORC_B)
     unary_oplist += (REV8)
+  }
+
+  if (use_zbc)
+  {
+    oplist += (CLMUL, CLMULH, CLMULR)
+  }
+
+  if (use_zbs)
+  {
+    oplist += (BCLR, BEXT, BINV, BSET)
+    candidates += seq_src1_immfn(BCLRI, if (use_64bit_opcodes) rand_shamt else rand_shamtw)
+    candidates += seq_src1_immfn(BEXTI, if (use_64bit_opcodes) rand_shamt else rand_shamtw)
+    candidates += seq_src1_immfn(BINVI, if (use_64bit_opcodes) rand_shamt else rand_shamtw)
+    candidates += seq_src1_immfn(BSETI, if (use_64bit_opcodes) rand_shamt else rand_shamtw)
   }
 
   for (op <- oplist)

@@ -46,6 +46,8 @@ class Inst(opcode: String, val operands: Array[Operand])
     // ***** RISC-V Bit Manipulation Ext (v1.0) --- Optypes ******************************
     if (is_bitmanip_zba) return "bitmanip_zba"
     if (is_bitmanip_zbb) return "bitmanip_zbb"
+    if (is_bitmanip_zbc) return "bitmanip_zbc"
+    if (is_bitmanip_zbs) return "bitmanip_zbs"
     // ************************************************************************************
     return "unknown" //Shouldn't return this.
 
@@ -280,6 +282,12 @@ class Inst(opcode: String, val operands: Array[Operand])
          "min", "minu", "sext.b", "sext.h", "zext.h", "rol", "rolw", "ror", "rori", "roriw",
          "rorw", "orc.b", "rev8").contains(opcode)
 
+  def is_bitmanip_zbc =
+    List("clmul", "clmulh", "clmulr").contains(opcode)
+
+  def is_bitmanip_zbs =
+    List("bclr", "bclri", "bext", "bexti", "binv", "binvi", "bset", "bseti").contains(opcode)
+
   // ******************************************************************************************
 
   override def toString =
@@ -430,6 +438,21 @@ object RORIW extends Opcode("roriw")
 object RORW extends Opcode("rorw")
 object ORC_B extends Opcode("orc.b")
 object REV8 extends Opcode("rev8")
+
+// Zbc
+object CLMUL extends Opcode("clmul")
+object CLMULH extends Opcode("clmulh")
+object CLMULR extends Opcode("clmulr")
+
+// Zbs
+object BCLR extends Opcode("bclr")
+object BCLRI extends Opcode("bclri")
+object BEXT extends Opcode("bext")
+object BEXTI extends Opcode("bexti")
+object BINV extends Opcode("binv")
+object BINVI extends Opcode("binvi")
+object BSET extends Opcode("bset")
+object BSETI extends Opcode("bseti")
 
 object FLW extends Opcode("flw")
 object FLD extends Opcode("fld")
