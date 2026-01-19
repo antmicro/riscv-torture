@@ -187,7 +187,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
     {
       val seqhash = HashMap("xmem"->1,"xbranch"->2,"xalu"->3,"vmem"->4,        // Added RISC-V Vector functionality
       "fgen"->5,"fpmem"->6,"fax"->7,"fdiv"->8,"vec"->9,"vonly"->10,"valu"->11,"rvv_vmem_unit"->13,"rvv_vmem_const"->14,"rvv_vmem_vect"->15,"rvv_vinteger"->16,"rvv_vfixed"->17,"rvv_vfloat"->18,"rvv_vreduce"->19,"rvv_vmask"->20,"rvv_vpermute"->21, "rvv_vamo"->22, "rvv_vmem_zvlsseg"->23, "rvv_vconfig"->24,
-      "bitmanip_zba"->25,"bitmanip_zbb"->26,"bitmanip_zbb"->27,"bitmanip_zbb"->28,"unknown"->29).withDefaultValue(100)
+      "bitmanip_zba"->25,"bitmanip_zbb"->26,"bitmanip_zbc"->27,"bitmanip_zbs"->28,"unknown"->29).withDefaultValue(100)
       if (seqhash(seq1._1) == 100 && seqhash(seq2._1) == 100) return (seq1._1 < seq2._1)
       return seqhash(seq1._1) < seqhash(seq2._1)
     }
