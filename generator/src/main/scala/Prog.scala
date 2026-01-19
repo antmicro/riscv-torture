@@ -78,7 +78,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
     ("Hwacha_vmisc"),("Hwacha_vfpalu"),("Hwacha_vfpfma"),("Hwacha_vfpcvt"),("Hwacha_vsmem"),("Hwacha_vshared"),("Hwacha_vpred"),("Hwacha_vcmp"),
     ("rvv_vmem_unit"),("rvv_vmem_const"),("rvv_vmem_vect"),("rvv_vinteger"),("rvv_vfixed"),
     ("rvv_vfloat"),("rvv_vreduce"),("rvv_vmask"),("rvv_vpermute"),("rvv_vamo"),("rvv_vmem_zvlsseg"),("rvv_vconfig"),("bitmanip_zba"),("bitmanip_zbb"),
-    ("bitmanip_zbc"),("bitmanip_zbs"),("unknown")))
+    ("bitmanip_zbc"),("bitmanip_zbs"),("compressed_zcb"),("compressed_zcmp"),("compressed_zcmt"),("unknown")))
     {
       catstats(cat)=0
       opstats(cat) = new HashMap[String,Int].withDefaultValue(0)
@@ -194,7 +194,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
     {
       val seqhash = HashMap("xmem"->1,"xbranch"->2,"xalu"->3,"vmem"->4,        // Added RISC-V Vector functionality
       "fgen"->5,"fpmem"->6,"fax"->7,"fdiv"->8,"vec"->9,"vonly"->10,"valu"->11,"rvv_vmem_unit"->13,"rvv_vmem_const"->14,"rvv_vmem_vect"->15,"rvv_vinteger"->16,"rvv_vfixed"->17,"rvv_vfloat"->18,"rvv_vreduce"->19,"rvv_vmask"->20,"rvv_vpermute"->21, "rvv_vamo"->22, "rvv_vmem_zvlsseg"->23, "rvv_vconfig"->24,
-      "bitmanip_zba"->25,"bitmanip_zbb"->26,"bitmanip_zbc"->27,"bitmanip_zbs"->28,"unknown"->29).withDefaultValue(100)
+      "bitmanip_zba"->25,"bitmanip_zbb"->26,"bitmanip_zbc"->27,"bitmanip_zbs"->28,"compressed_zcb"->29,"compressed_zcmp"->30,"compressed_zcmt"->31,"unknown"->32).withDefaultValue(100)
       if (seqhash(seq1._1) == 100 && seqhash(seq2._1) == 100) return (seq1._1 < seq2._1)
       return seqhash(seq1._1) < seqhash(seq2._1)
     }
@@ -246,7 +246,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
       val cathash = HashMap("alu"->1,"cmp"->2,"branch"->3,"jmp"->4,"jalr"->5,
         "la"->6,"mem"->7,"amo"->8,"misc"->9,"fpalu"->10,"fpcmp"->11,"fpfma"->12,
         "fpmem"->13,"fpcvt"->14,"fpmisc"->15,"Hwacha_vmem"->16,"Hwacha_vamo"->17,"Hwacha_valu"->18,"Hwacha_vfpalu"->19,
-        "Hwacha_vfpfma"->20,"Hwacha_vfpcvt"->21,"Hwacha_vsmem"->22,"Hwacha_vshared"->23,"Hwacha_vpred"->24,"Hwacha_vcmp"->25,"Hwacha_vmisc"->26,"rvv_vmem_unit"->27,"rvv_vmem_const"->28,"rvv_vmem_vect"->29,"rvv_vinteger"->30,"rvv_vfixed"->31,"rvv_vfloat"->32,"rvv_vreduce"->33,"rvv_vmask"->34,"rvv_vpermute"->35, "rvv_vamo"->36, "rvv_vmem_zvlsseg"->37,"rvv_vconfig"->38, "bitmanip_zba"->39, "bitmanip_zbb"->40, "bitmanip_zbc"->41, "bitmanip_zbs"->42, "unknown"->43) // Added RISC-V Vector functionality
+        "Hwacha_vfpfma"->20,"Hwacha_vfpcvt"->21,"Hwacha_vsmem"->22,"Hwacha_vshared"->23,"Hwacha_vpred"->24,"Hwacha_vcmp"->25,"Hwacha_vmisc"->26,"rvv_vmem_unit"->27,"rvv_vmem_const"->28,"rvv_vmem_vect"->29,"rvv_vinteger"->30,"rvv_vfixed"->31,"rvv_vfloat"->32,"rvv_vreduce"->33,"rvv_vmask"->34,"rvv_vpermute"->35, "rvv_vamo"->36, "rvv_vmem_zvlsseg"->37,"rvv_vconfig"->38, "bitmanip_zba"->39, "bitmanip_zbb"->40, "bitmanip_zbc"->41, "bitmanip_zbs"->42, "compressed_zcb"->43, "compressed_zcmp"->44,"compressed_zcmt"->45,"unknown"->46) // Added RISC-V Vector functionality
       return cathash(cat1._1) < cathash(cat2._1)
     }
 
@@ -374,9 +374,27 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
     s += "-------------- Generated Bit Manipulation Zbs Instructions =  " + bitmanip_zbs_inst + " --\n"
     s += "-------------- Bit Manipulation Zbs Instructions Coverage =  " + (bitmanip_zbs_inst.toFloat/8.toFloat)*100 + "% --\n"
 
-		s += "\n--------------------------------------------------------------------------\n"
+    val compressed_zcb_inst = opstats("compressed_zcb").values.count(_ > 0)
+    s += "--------------------------------------------------------------------------\n"
+    s += "-------------- Total Code Compression Zcb Instructions =  " + 8 + " --\n"
+    s += "-------------- Generated Code Compression Zcb Instructions =  " + compressed_zcb_inst + " --\n"
+    s += "-------------- Code Compression Zcb Instructions Coverage =  " + (compressed_zcb_inst.toFloat/8.toFloat)*100 + "% --\n"
+
+    val compressed_zcmp_inst = opstats("compressed_zcmp").values.count(_ > 0)
+    s += "--------------------------------------------------------------------------\n"
+    s += "-------------- Total Code Compression Zcmp Instructions =  " + 8 + " --\n"
+    s += "-------------- Generated Code Compression Zcmp Instructions =  " + compressed_zcmp_inst + " --\n"
+    s += "-------------- Code Compression Zcmp Instructions Coverage =  " + (compressed_zcmp_inst.toFloat/8.toFloat)*100 + "% --\n"	
+
+    val compressed_zcmt_inst = opstats("compressed_zcmt").values.count(_ > 0)
+    s += "--------------------------------------------------------------------------\n"
+    s += "-------------- Total Code Compression Zcmt Instructions =  " + 8 + " --\n"
+    s += "-------------- Generated Code Compression Zcmt Instructions =  " + compressed_zcmt_inst + " --\n"
+    s += "-------------- Code Compression Zcmt Instructions Coverage =  " + (compressed_zcmt_inst.toFloat/8.toFloat)*100 + "% --\n"	
+    
+    s += "\n--------------------------------------------------------------------------\n"
     s += "------------------------ Opcode Usage ------------------------------------\n"
- 		s += "--------------------------------------------------------------------------\n"
+ 	s += "--------------------------------------------------------------------------\n"
     s += "---------- instcnt = " + instcnt + " -------------\n"
     val sortedCats = catstats.toSeq.sortWith(cat_lt) // TODO: Better way to sort?
 
@@ -534,7 +552,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
   var vfloat = false
 //*****************************************************************************
 
-  def code_body(seqnum: Int, mix: Map[String, Int], veccfg: Map[String, String], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, use_zba: Boolean, use_zbb: Boolean, use_zbc: Boolean, use_zbs: Boolean, segment: Boolean, rv_vmem_unit: Boolean,rv_vmem_const: Boolean,rv_vmem_vect: Boolean, rv_vmem_zvlsseg: Boolean,rv_vinteger: Boolean, rv_vfixed: Boolean, rv_vfloat: Boolean, rv_vreduce: Boolean, rv_vmask: Boolean, rv_vpermute: Boolean, rv_vamo: Boolean, rv_wide: Boolean, rv_narrow: Boolean, vlen_import: Int, lmul_import: String, sew_import: Int, nr_import: Int, nf_import: Int, mask:Boolean,  multi_config_import: Boolean, use_64bit_opcodes: Boolean) =
+  def code_body(seqnum: Int, mix: Map[String, Int], veccfg: Map[String, String], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, use_zba: Boolean, use_zbb: Boolean, use_zbc: Boolean, use_zbs: Boolean, use_zcb: Boolean, use_zcmp: Boolean, use_zcmt: Boolean, segment: Boolean, rv_vmem_unit: Boolean,rv_vmem_const: Boolean,rv_vmem_vect: Boolean, rv_vmem_zvlsseg: Boolean,rv_vinteger: Boolean, rv_vfixed: Boolean, rv_vfloat: Boolean, rv_vreduce: Boolean, rv_vmask: Boolean, rv_vpermute: Boolean, rv_vamo: Boolean, rv_wide: Boolean, rv_narrow: Boolean, vlen_import: Int, lmul_import: String, sew_import: Int, nr_import: Int, nf_import: Int, mask:Boolean,  multi_config_import: Boolean, use_64bit_opcodes: Boolean) =
   {
   	multi_config = multi_config_import
   	vlen = vlen_import
@@ -802,7 +820,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
 
   def data_footer() = ""
 
-  def generate(nseqs: Int, fprnd: Int, mix: Map[String, Int], veccfg: Map[String, String], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, use_zba: Boolean, use_zbb: Boolean, use_zbc: Boolean, use_zbs: Boolean, segment : Boolean, loop: Boolean, loop_size: Int, rv_vmem_unit: Boolean,rv_vmem_const: Boolean,rv_vmem_vect: Boolean, rv_vmem_zvlsseg: Boolean, rv_vinteger: Boolean, rv_vfixed: Boolean, rv_vfloat: Boolean, rv_vreduce: Boolean, rv_vmask: Boolean, rv_vpermute: Boolean, rv_vamo: Boolean, rv_wide: Boolean, rv_narrow: Boolean, vlen: Int, lmul_import: String, sew_import: Int, nr_import: Int, nf_import: Int, mask :Boolean, multi_config: Boolean, use_64bit_opcodes: Boolean) =
+  def generate(nseqs: Int, fprnd: Int, mix: Map[String, Int], veccfg: Map[String, String], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, use_zba: Boolean, use_zbb: Boolean, use_zbc: Boolean, use_zbs: Boolean, use_zcb: Boolean, use_zcmp: Boolean, use_zcmt: Boolean, segment : Boolean, loop: Boolean, loop_size: Int, rv_vmem_unit: Boolean,rv_vmem_const: Boolean,rv_vmem_vect: Boolean, rv_vmem_zvlsseg: Boolean, rv_vinteger: Boolean, rv_vfixed: Boolean, rv_vfloat: Boolean, rv_vreduce: Boolean, rv_vmask: Boolean, rv_vpermute: Boolean, rv_vamo: Boolean, rv_wide: Boolean, rv_narrow: Boolean, vlen: Int, lmul_import: String, sew_import: Int, nr_import: Int, nf_import: Int, mask :Boolean, multi_config: Boolean, use_64bit_opcodes: Boolean) =
   {
     // Check if generating any FP operations or Vec unit stuff
     val using_vec = mix.filterKeys(List("vec") contains _).values.reduce(_+_) > 0
@@ -823,7 +841,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
 
     header(nseqs) +
     code_header(using_fpu, using_vec, using_rvv, fprnd, lmul, sew, use_64bit_opcodes) +
-    code_body(nseqs, mix, veccfg, use_amo, use_mul, use_div, use_zba, use_zbb, use_zbc, use_zbs, segment, rv_vmem_unit, rv_vmem_const, rv_vmem_vect, rv_vmem_zvlsseg, rv_vinteger, rv_vfixed, rv_vfloat, rv_vreduce, rv_vmask, rv_vpermute, rv_vamo, rv_wide, rv_narrow, vlen, lmul, sew, nr, nf, mask, multi_config, use_64bit_opcodes) +
+    code_body(nseqs, mix, veccfg, use_amo, use_mul, use_div, use_zba, use_zbb, use_zbc, use_zbs, use_zcb, use_zcmp, use_zcmt, segment, rv_vmem_unit, rv_vmem_const, rv_vmem_vect, rv_vmem_zvlsseg, rv_vinteger, rv_vfixed, rv_vfloat, rv_vreduce, rv_vmask, rv_vpermute, rv_vamo, rv_wide, rv_narrow, vlen, lmul, sew, nr, nf, mask, multi_config, use_64bit_opcodes) +
     code_footer(using_fpu, using_vec, using_rvv, loop,lmul, sew) +
     data_header() +
     data_input(using_fpu, using_vec, using_rvv) +
@@ -831,7 +849,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
     data_footer()
   }
 
-  def statistics(nseqs: Int, fprnd: Int, mix: Map[String, Int], vnseq: Int, vmemsize: Int, vfnum: Int, vecmix: Map[String, Int], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, use_zba: Boolean, use_zbb: Boolean, use_zbc: Boolean, use_zbs: Boolean, use_vec: Boolean) =
+  def statistics(nseqs: Int, fprnd: Int, mix: Map[String, Int], vnseq: Int, vmemsize: Int, vfnum: Int, vecmix: Map[String, Int], use_amo: Boolean, use_mul: Boolean, use_div: Boolean, use_zba: Boolean, use_zbb: Boolean, use_zbc: Boolean, use_zbs: Boolean, use_zcb: Boolean, use_zcmp: Boolean, use_zcmt: Boolean, use_vec: Boolean) =
   {
     "--------------------------------------------------------------------------\n" +
     "-- Statistics for assembly code created by RISCV torture test generator --\n" +
@@ -851,6 +869,9 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
     "---------- use_zbb = " + use_zbb + " ----------\n" +
     "---------- use_zbc = " + use_zbc + " ----------\n" +
     "---------- use_zbs = " + use_zbs + " ----------\n" +
+    "---------- use_zcb = " + use_zcb + " ----------\n" +
+    "---------- use_zcmp = " + use_zcmp + " ----------\n" +
+    "---------- use_zcmt = " + use_zcmt + " ----------\n" +
     "--------------------------------------------------------------------------\n\n" +
     "--------------------------------------------------------------------------\n" +
     sequence_stats(mix, vecmix, nseqs, vnseq, vfnum) +

@@ -163,7 +163,7 @@ object TestRunner extends App
     val binFileName = asmFileName.dropRight(2)
     var process = ""
     val compiler = "riscv64-unknown-elf-gcc"
-    val arch = if (use_64bit_opcodes) "rv64gcvzfh_zba_zbb_zbc_zbs" else "rv32gcvzfh_zba_zbb_zbc_zbs"
+    val arch = if (use_64bit_opcodes) "rv64imafv_zfh_zba_zbb_zbc_zbs_zcb_zcmp_zcmt" else "rv32imav_zfh_zba_zbb_zbc_zbs_zcb_zcmp_zcmt"
     val abi = if (use_64bit_opcodes) "lp64d" else "ilp32f"
     if (virtualMode)
     {
@@ -258,7 +258,7 @@ object TestRunner extends App
   {
     val debugArgs = if(debug && output) Seq("-d") else Seq()
     val simArgs   = if (hwacha) Seq("--extension=hwacha") else Seq()
-    val simISAArgs  =  if (use_64bit_opcodes) Seq("--isa=RV64gcV_zfh_Zvl512b_Zve64d_Zba_Zbb_Zbc_Zbs") else Seq("--isa=RV32gcV_zfh_Zvl512b_Zve64d_Zba_Zbb_Zbc_Zbs")
+    val simISAArgs  =  if (use_64bit_opcodes) Seq("--isa=RV64imafV_zfh_Zvl512b_Zve64d_Zba_Zbb_Zbc_Zbs_Zca_Zcb_Zcmp_Zcmt") else Seq("--isa=RV32imafV_zfh_Zvl512b_Zve64d_Zba_Zbb_Zbc_Zbs_Zca_Zcb_Zcmp_Zcmt")
 
     runSim("spike", debugArgs++simISAArgs++simArgs, bin+".spike.sig", output, bin+".spike.out", Seq(), bin)
   }

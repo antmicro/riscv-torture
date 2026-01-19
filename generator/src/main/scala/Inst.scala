@@ -48,7 +48,12 @@ class Inst(opcode: String, val operands: Array[Operand])
     if (is_bitmanip_zbb) return "bitmanip_zbb"
     if (is_bitmanip_zbc) return "bitmanip_zbc"
     if (is_bitmanip_zbs) return "bitmanip_zbs"
+    // ***** RISC-V Code Size Reduction Ext (v1.0.0) --- Optypes ******************************
+    if (is_compressed_zcb) return "compressed_zcb"
+    if (is_compressed_zcmp) return "compressed_zcmp"
+    if (is_compressed_zcmt) return "compressed_zcmt"
     // ************************************************************************************
+
     return "unknown" //Shouldn't return this.
 
   }
@@ -288,6 +293,16 @@ class Inst(opcode: String, val operands: Array[Operand])
   def is_bitmanip_zbs =
     List("bclr", "bclri", "bext", "bexti", "binv", "binvi", "bset", "bseti").contains(opcode)
 
+  def is_compressed_zcb =
+    List("c.lbu", "c.lh", "c.lhu", "c.sb", "c.sh", "c.zext.b", "c.sext.b", "c.zext.h", "c.sext.h", "c.zext.w",
+      "c.mul", "c.not").contains(opcode)
+
+  def is_compressed_zcmp =
+    List("cm.push", "cm.pop", "cm.popret", "cm.popretz", "cm.mva01s", "cm.mvsa01").contains(opcode)
+
+  def is_compressed_zcmt =
+    List("cm.jt", "cm.jalt").contains(opcode)
+
   // ******************************************************************************************
 
   override def toString =
@@ -455,6 +470,33 @@ object BINV extends Opcode("binv")
 object BINVI extends Opcode("binvi")
 object BSET extends Opcode("bset")
 object BSETI extends Opcode("bseti")
+
+// Zcb
+object C_LBU extends Opcode("c.lbu")
+object C_LH extends Opcode("c.lh")
+object C_LHU extends Opcode("c.lhu")
+object C_SB extends Opcode("c.sb")
+object C_SH extends Opcode("c.sh")
+object C_ZEXT_B extends Opcode("c.zext.b")
+object C_SEXT_B extends Opcode("c.sext.b")
+object C_ZEXT_H extends Opcode("c.zext.h")
+object C_SEXT_H extends Opcode("c.sext.h")
+object C_ZEXT_W extends Opcode("c.zext.w")
+object C_MUL extends Opcode("c.mul")
+object C_NOT extends Opcode("c.not")
+
+// Zcmp
+object CM_PUSH extends Opcode("cm.push")
+object CM_POP extends Opcode("cm.pop")
+object CM_POPRET extends Opcode("cm.popret")
+object CM_POPRETZ extends Opcode("cm.popretz")
+object CM_MVA01S extends Opcode("cm.mva01s")
+object CM_MVSA01 extends Opcode("cm.mvsa01")
+
+//Zcmt
+object CM_JT extends Opcode("cm.jt")
+object CM_JALT extends Opcode("cm.jalt")
+
 
 object FLW extends Opcode("flw")
 object FLD extends Opcode("fld")

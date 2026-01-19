@@ -68,6 +68,10 @@ torture.generator.bitmanip.zbb    true
 torture.generator.bitmanip.zbc    true
 torture.generator.bitmanip.zbs    true
 
+torture.generator.compressed.zcb    true
+torture.generator.compressed.zcmp   true
+torture.generator.compressed.zcmt   true
+
 torture.testrun.maxcycles         1000000 # Maximum number of cycle for RTL and C simulation
 torture.testrun.virtual           false   # To run the test in virtual mode
 torture.testrun.seek              false   # Seek and report the failing program segment
