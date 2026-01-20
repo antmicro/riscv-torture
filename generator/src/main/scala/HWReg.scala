@@ -94,7 +94,7 @@ object HWReg
       if (visible) hwreg.state = HID2VIS
       else hwreg.state = HID2HID
     }
-    else println("bug in do_write")
+    else println("alloc_write error: Wrong state: visible: " + visible + ",reg: " + hwreg.toString() + ", state:" + hwreg.state)
   }
   
   def alloc_write_dep(regs: List[Reg]) = alloc_write(regs.forall(_.hwreg.is_visible)) _
@@ -104,7 +104,7 @@ object HWReg
   {
     if (hwreg.state == VIS2VIS || hwreg.state == HID2VIS) hwreg.state = VIS
     else if (hwreg.state == VIS2HID || hwreg.state == HID2HID) hwreg.state = HID
-    else println("bug in free_write")
+    else println("free_write: Wrong state: reg: " + hwreg.toString() + ", state:" + hwreg.state)
   }
 }
 
