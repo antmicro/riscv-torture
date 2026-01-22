@@ -177,6 +177,7 @@ object TestRunner extends App
       println("Physical mode")
       process = compiler + " -nostdlib -nostartfiles -Wa, -march=" + arch + " -mabi=" + abi + " -Wl,-g -I./env/p -T./env/p/link.ld " + asmFileName + " -o " + binFileName
     }
+    println("Running compiler: " + process)
     val pb = Process(process)
     val exitCode = pb.!
     if (exitCode == 0) Some(binFileName) else None
@@ -212,7 +213,7 @@ object TestRunner extends App
 
   def runSim(sim: String, simargs: Seq[String], signature: String, output: Boolean, outName: String, args: Seq[String], invokebin: String): String = {
     val cmd = Seq(sim) ++ simargs ++ Seq("+signature="+signature) ++ args ++ Seq(invokebin)
-    println("running:"+cmd)
+    println("Running simulation: " + cmd.mkString(" "))
     if(output) {
       var fw = new FileWriter(outName+".raw")
       cmd ! ProcessLogger(
