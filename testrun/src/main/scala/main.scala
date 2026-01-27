@@ -170,12 +170,12 @@ object TestRunner extends App
       println("Virtual mode")
       val entropy = (new Random()).nextLong()
       println("entropy: " + entropy)
-      process = compiler + " -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -Wa,-march="  +arch + " -Wl,-g -DENTROPY=" + entropy + " -std=gnu99 -O2 -I./env/v -I./macros/scalar -T./env/v/link.ld ./env/v/entry.S ./env/v/vm.c " + asmFileName + " -lc -o " + binFileName
+      process = compiler + " -mno-relax -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -Wa,-march="  +arch + " -Wl,-g -DENTROPY=" + entropy + " -std=gnu99 -O2 -I./env/v -I./macros/scalar -T./env/v/link.ld ./env/v/entry.S ./env/v/vm.c " + asmFileName + " -lc -o " + binFileName
     }
     else
     {
       println("Physical mode")
-      process = compiler + " -nostdlib -nostartfiles -Wa, -march=" + arch + " -mabi=" + abi + " -Wl,-g -I./env/p -T./env/p/link.ld " + asmFileName + " -o " + binFileName
+      process = compiler + " -mno-relax -nostdlib -nostartfiles -Wa, -march=" + arch + " -mabi=" + abi + " -Wl,-g -I./env/p -T./env/p/link.ld " + asmFileName + " -o " + binFileName
     }
     println("Running compiler: " + process)
     val pb = Process(process)
