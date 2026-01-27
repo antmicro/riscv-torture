@@ -466,7 +466,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
     val branch_patch = inst.operands.indexWhere(branch_filter)
     if (branch_patch != -1)
     {
-      progsegs.last.insts += ILLEGAL(Label("0x%08x" format rand_word))
+      progsegs.last.insts += WORD(Label("0x%08x" format rand_word))
       progsegs += ProgSeg()
       inst.operands(branch_patch) = Label(progsegs.last.name)
     }
@@ -476,7 +476,7 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
     val jalr_patch = inst.operands.indexWhere(jalr_filter)
     if (jalr_patch != -1)
     {
-      progsegs.last.insts += ILLEGAL(Label("0x%08x" format rand_word))
+      progsegs.last.insts += WORD(Label("0x%08x" format rand_word))
       progsegs += ProgSeg()
       jalr_labels += Label(progsegs.last.name)
       inst.operands(jalr_patch) = Imm(0)
