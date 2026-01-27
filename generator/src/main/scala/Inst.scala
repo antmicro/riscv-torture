@@ -803,6 +803,7 @@ object FMOVN extends Opcode("fmovn")
 object FENCE_V extends Opcode("fence")
 
 object WORD extends Opcode(".word")
+object DWORD extends Opcode(".dword")
 
 // ***** RISC-V Vector Ext (v0.9) --- Opcode Objects ******************************************
 
