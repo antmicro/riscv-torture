@@ -393,6 +393,7 @@ object DIVUW extends Opcode("divuw")
 object REMW extends Opcode("remw")
 object REMUW extends Opcode("remuw")
 
+object CSRW extends Opcode("csrw")
 object CSRRW extends Opcode("csrrw")
 object CSRRS extends Opcode("csrrs")
 object CSRRC extends Opcode("csrrc")
