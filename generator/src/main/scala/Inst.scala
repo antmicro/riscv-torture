@@ -315,6 +315,7 @@ object BLT extends Opcode("blt")
 object BGE extends Opcode("bge")
 object BLTU extends Opcode("bltu")
 object BGEU extends Opcode("bgeu")
+object RET extends Opcode("ret")
 
 object LA extends Opcode("la")
 object LB extends Opcode("lb")
