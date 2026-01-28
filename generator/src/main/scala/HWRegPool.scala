@@ -90,7 +90,7 @@ class XRegsPool(use_64bit_opcodes: Boolean) extends ScalarRegPool
 
   hwregs += new HWReg("x0", true, false)
   for (i <- 1 to 31)
-    hwregs += new HWReg("x" + i.toString(), true, true)
+    hwregs += new HWReg("x" + i.toString(), true, true, i >= 8 && i <= 15, (i >= 8 && i <= 9) || (i >= 18 && i <= 23)) // Hack: Only s1-s7 are considered, as this logic is used solely by RVC
 
   override def save_regs() =
   {

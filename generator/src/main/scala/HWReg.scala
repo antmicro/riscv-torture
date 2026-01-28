@@ -10,8 +10,9 @@ object HWRegState extends Enumeration
 }
 
 import HWRegState._
-class HWReg(val name: String, val readable: Boolean, val writable: Boolean)
+class HWReg(val name: String, val readable: Boolean, val writable: Boolean, val popular: Boolean = false, val sreg: Boolean = false)
 {
+  // Popular as defined in RVC extension.
   var state = VIS
   var readers = 0
   var backup_state = VIS
