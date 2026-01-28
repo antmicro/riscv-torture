@@ -44,10 +44,6 @@ class HWReg(val name: String, val readable: Boolean, val writable: Boolean, val 
 object HWReg
 {
 //==============================RVV Functionality================================================================
-  def filter_read_v0 = (hwreg: HWReg) => (hwreg.name == "v0")
-
-  //def filter_read_v0t = (hwreg: HWReg) => (hwreg.name == "v0.t")
-
   def filter_read_dest_n(lmul:String, src:Int) = (hwreg: HWReg) => (((hwreg.name == "v" +src)) && hwreg.readable)
   def filter_write_dest_n(lmul:String, src:Int) = (hwreg: HWReg) =>(((hwreg.name == "v" +src)) && hwreg.writable && hwreg.is_state(VIS,HID))
   def filter_read_src1_n(lmul:String, src:Int) = (hwreg: HWReg) => ((hwreg.name == "v" + src && hwreg.readable ))
@@ -62,7 +58,7 @@ object HWReg
   def filter_write_src2_w(lmul:String, src:Int) = (hwreg: HWReg) =>((hwreg.name == "v" + src && hwreg.writable && hwreg.is_state(VIS,HID)))
   
   // ================================================================================================================
-  def filter_read_zero = (hwreg: HWReg) => (hwreg.name == "x0" || hwreg.name == "x0_shadow")
+  def filter_read_name(names: String*) = (hwreg: HWReg) => names.contains(hwreg.name)
   def filter_read_any = (hwreg: HWReg) => hwreg.readable
   def filter_read_any_other(other: Reg)(hwreg: HWReg) = (hwreg.readable && hwreg.name != other.hwreg.name)
   def filter_read_visible = (hwreg: HWReg) => hwreg.readable && hwreg.is_state(VIS,VIS2VIS)

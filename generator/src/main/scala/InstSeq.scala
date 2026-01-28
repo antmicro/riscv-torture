@@ -58,8 +58,7 @@ class HWRegAllocator
 
   //======================================= Riscv Functionality ==========================================================
 
-  def reg_read_v0(hwrp: HWRegPool) = { reg_fn(hwrp, filter_read_v0, alloc_read, free_read) }
-  //def reg_read_v0t(hwrp: HWRegPool) = { reg_fn(hwrp, filter_read_v0t, alloc_read, free_read)}
+  def reg_read_v0(hwrp: HWRegPool) = { reg_fn(hwrp, filter_read_name("v0"), alloc_read, free_read) }
   def vreg_read_dest_n(hwrp: HWRegPool, lmul:String, src : Int) = { reg_fn(hwrp, filter_read_dest_n(lmul, src), alloc_read, free_read) }
   def vreg_write_dest_n(hwrp: HWRegPool, lmul:String, src : Int) = { reg_fn(hwrp, filter_write_dest_n(lmul, src), alloc_write(true), free_write) }
   def vreg_read_src1_n(hwrp: HWRegPool, lmul:String, src : Int) = { reg_fn(hwrp, filter_read_src1_n(lmul, src), alloc_read, free_read) }
@@ -74,8 +73,9 @@ class HWRegAllocator
   def vreg_write_src2_w(hwrp: HWRegPool, lmul:String, src : Int) = { reg_fn(hwrp, filter_write_src2_w(lmul, src), alloc_write(true), free_write) }
  
   //======================================================================================================================
-  
-  def reg_read_zero(hwrp: HWRegPool) = { reg_fn(hwrp, filter_read_zero, alloc_read, free_read) }
+
+  def reg_read_name(hwrp: HWRegPool, name: String) = { reg_fn(hwrp, filter_read_name(name), alloc_read, free_read) }
+  def reg_read_zero(hwrp: HWRegPool) = { reg_fn(hwrp, filter_read_name("x0", "x0_shadow"), alloc_read, free_read) }
   def reg_read_any(hwrp: HWRegPool) = { reg_fn(hwrp, filter_read_any, alloc_read, free_read) }
   def reg_read_any_other(hwrp: HWRegPool, other: Reg) = { reg_fn(hwrp, filter_read_any_other(other), alloc_read, free_read) }
   def reg_read_visible(hwrp: HWRegPool) = { reg_fn(hwrp, filter_read_visible, alloc_read, free_read) }
