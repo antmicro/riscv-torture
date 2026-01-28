@@ -6,11 +6,18 @@ import Rand._
 import java.util.Date
 import java.text.DateFormat
 
-class ProgSeg(val name: String)
+class ProgSeg(val name: String, val align: Option[Integer] = None)
 {
   var insts = new ArrayBuffer[Inst]
+  val label = Label(name)
 
-  override def toString = ((name + ":\n") /: insts.map((x) => "\t" + x + "\n"))(_ + _)
+  override def toString: String = {
+    val sb = new StringBuilder
+    if (align != None) sb.append(".balign ").append(align.get).append('\n')
+    sb.append(name).append(":\n")
+    insts.foreach(x => sb.append('\t').append(x).append('\n'))
+    sb.result()
+  }
 }
 
 object ProgSeg
