@@ -804,6 +804,7 @@ object FENCE_V extends Opcode("fence")
 
 object WORD extends Opcode(".word")
 object DWORD extends Opcode(".dword")
+object SPACE extends Opcode(".space")
 
 // ***** RISC-V Vector Ext (v0.9) --- Opcode Objects ******************************************
 
