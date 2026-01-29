@@ -102,6 +102,7 @@ class AbiReg(base: Reg) extends Operand
 class Label(val label: String) extends Operand
 {
   override def toString = label
+  def inst: Inst = new Inst(label + ":", Array.empty[Operand])
 }
 
 class PredReg(pred: Reg, neg: Boolean) extends Operand
