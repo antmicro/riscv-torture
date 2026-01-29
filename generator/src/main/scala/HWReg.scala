@@ -56,7 +56,7 @@ object HWReg
   def filter_write_src1_w(lmul:String, src:Int) = (hwreg: HWReg) =>(((hwreg.name == "v" +src)) && hwreg.writable && hwreg.is_state(VIS,HID))
   def filter_read_src2_w(lmul:String, src:Int) = (hwreg: HWReg) => ((hwreg.name == "v" + src && hwreg.readable ))
   def filter_write_src2_w(lmul:String, src:Int) = (hwreg: HWReg) =>((hwreg.name == "v" + src && hwreg.writable && hwreg.is_state(VIS,HID)))
-  
+
   // ================================================================================================================
   def filter_read_name(names: String*) = (hwreg: HWReg) => names.contains(hwreg.name)
   def filter_read_any = (hwreg: HWReg) => hwreg.readable
@@ -66,7 +66,8 @@ object HWReg
   def filter_read_popular = (hwreg: HWReg) => hwreg.readable && hwreg.popular
   def filter_read_visible_popular = (hwreg: HWReg) => filter_read_visible(hwreg) && hwreg.popular
 
-  def filter_write_ra = (hwreg: HWReg) => hwreg.name == "x1" && filter_write_visible(hwreg)
+  def filter_write_name(names: String*) = (hwreg: HWReg) => names.contains(hwreg.name) && filter_write_visible(hwreg)
+
   def filter_write_visible = (hwreg: HWReg) => hwreg.writable && hwreg.is_state(VIS,HID)
   def filter_write_visible_popular = (hwreg: HWReg) => filter_write_visible(hwreg) && hwreg.popular
   def filter_write_visible_sreg = (hwreg: HWReg) => filter_write_visible(hwreg) && hwreg.sreg

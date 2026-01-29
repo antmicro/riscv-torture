@@ -83,7 +83,8 @@ class HWRegAllocator
   def reg_read_visible_popular(hwrp: HWRegPool) = { reg_fn(hwrp, filter_read_visible_popular, alloc_read, free_read) }
   def reg_read_visible_consec(hwrp: HWRegPool, regs: Int) = { reg_fn(hwrp, filter_read_visible, alloc_read, free_read, regs) }
   def reg_read_popular(hwrp: HWRegPool) = { reg_fn(hwrp, filter_read_popular, alloc_read, free_read) }
-  def reg_write_ra(hwrp: HWRegPool) = { reg_fn(hwrp, filter_write_ra, alloc_write(false), free_write) }
+  def reg_write_ra(hwrp: HWRegPool) = { reg_fn(hwrp, filter_write_name("x1"), alloc_write(false), free_write) }
+  def reg_write_name(hwrp: HWRegPool, name: String) = { reg_fn(hwrp, filter_write_name(name), alloc_write(false), free_write) }
   def reg_write_visible(hwrp: HWRegPool) = { reg_fn(hwrp, filter_write_visible, alloc_write(true), free_write) }
   def reg_write_visible_sreg(hwrp: HWRegPool) = { reg_fn(hwrp, filter_write_visible_sreg, alloc_write(true), free_write) }
   def reg_write_visible_consec(hwrp: HWRegPool, regs: Int) = { reg_fn(hwrp, filter_write_visible, alloc_write(true), free_write, regs) }
