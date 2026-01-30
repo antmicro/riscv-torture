@@ -10,6 +10,21 @@ class SeqCompressed(xregs: HWRegPool, mem: Mem, use_zcb: Boolean, use_zcmp: Bool
   val crashes = ArrayBuffer[Label](Label("crash_backward"), Label("crash_forward"))
   val candidates = new ArrayBuffer[() => insts.type]
 
+  def generate_jump_table(idx: Integer, next_insn_label: Label): ProgSeg =
+  {
+    val table = new ProgSeg("jump_table_" + SeqCompressed.jump_table_idx.toString, Some(64))
+    SeqCompressed.jump_table_idx += 1
+
+    for (i <- 0 to 255)
+    {
+      val label : Label = if (i == idx) next_insn_label else rand_pick(crashes)
+      table.insts += (if (use_64bit_opcodes) DWORD(label) else WORD(label))
+    }
+
+    extra_code += ProgSegDump(table)
+    table
+  }
+
   def seq_srcdst(op: Opcode) = () =>
   {
     val srcdst = reg_write_visible_popular(xregs)
@@ -42,6 +57,28 @@ class SeqCompressed(xregs: HWRegPool, mem: Mem, use_zcb: Boolean, use_zcmp: Bool
     insts += op(reg_src, RegImm(reg_addr, imm))
   }
 
+  def seq_jt(op: Opcode, idx: Integer, check_ra: Boolean) = () =>
+  {
+    val next_insn_label = Label("jt_target" + SeqCompressed.next_insn_label_ctr.toString)
+    SeqCompressed.next_insn_label_ctr += 1
+    val table = generate_jump_table(idx, next_insn_label)
+
+    val reg_src = reg_write_hidden(xregs)
+    insts += LA(reg_src, table.label)
+    insts += CSRW(CSR("jvt"), reg_src)
+    insts += op(Imm(idx))
+    insts += next_insn_label.inst
+    
+    if (check_ra)
+    {
+      val reg_ra = reg_read_name(xregs, "x1")
+      val reg_src2 = reg_write_other(xregs, reg_ra)
+      insts += LA(reg_src2, next_insn_label)
+      insts += BNE(reg_src2, reg_ra, rand_pick(crashes))
+    }
+    insts.asInstanceOf[insts.type]
+  }
+  
   if (use_zcb)
   {
     candidates += seq_load_addrfn(C_LBU, rand_addr_b, rand_range(0, 3))
@@ -69,6 +106,18 @@ class SeqCompressed(xregs: HWRegPool, mem: Mem, use_zcb: Boolean, use_zcmp: Bool
   {
     candidates += seq_srcdst(op)
   }
+
+  if (use_zcmt)
+  {
+    candidates += seq_jt(CM_JT, rand_range(0, 31), false)
+    candidates += seq_jt(CM_JALT, rand_range(32, 255), true)
+  }
   
   rand_pick(candidates)()
+}
+
+object SeqCompressed
+{
+  var next_insn_label_ctr = 0
+  var jump_table_idx = 0
 }
