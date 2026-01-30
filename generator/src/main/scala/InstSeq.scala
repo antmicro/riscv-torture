@@ -79,11 +79,18 @@ class HWRegAllocator
   def reg_read_any(hwrp: HWRegPool) = { reg_fn(hwrp, filter_read_any, alloc_read, free_read) }
   def reg_read_any_other(hwrp: HWRegPool, other: Reg) = { reg_fn(hwrp, filter_read_any_other(other), alloc_read, free_read) }
   def reg_read_visible(hwrp: HWRegPool) = { reg_fn(hwrp, filter_read_visible, alloc_read, free_read) }
+  def reg_read_visible_sreg(hwrp: HWRegPool) = { reg_fn(hwrp, filter_read_visible_sreg, alloc_read, free_read) }
+  def reg_read_visible_popular(hwrp: HWRegPool) = { reg_fn(hwrp, filter_read_visible_popular, alloc_read, free_read) }
   def reg_read_visible_consec(hwrp: HWRegPool, regs: Int) = { reg_fn(hwrp, filter_read_visible, alloc_read, free_read, regs) }
+  def reg_read_popular(hwrp: HWRegPool) = { reg_fn(hwrp, filter_read_popular, alloc_read, free_read) }
   def reg_write_ra(hwrp: HWRegPool) = { reg_fn(hwrp, filter_write_ra, alloc_write(false), free_write) }
   def reg_write_visible(hwrp: HWRegPool) = { reg_fn(hwrp, filter_write_visible, alloc_write(true), free_write) }
+  def reg_write_visible_sreg(hwrp: HWRegPool) = { reg_fn(hwrp, filter_write_visible_sreg, alloc_write(true), free_write) }
   def reg_write_visible_consec(hwrp: HWRegPool, regs: Int) = { reg_fn(hwrp, filter_write_visible, alloc_write(true), free_write, regs) }
+  def reg_write_visible_popular(hwrp: HWRegPool) = { reg_fn(hwrp, filter_write_visible_popular, alloc_write(true), free_write) }
+  def reg_write_visible_other_sreg(hwrp: HWRegPool, other: Reg, regs: Reg*) = { reg_fn(hwrp, filter_write_dep_other_sreg(other, regs.toList), alloc_write_dep(regs.toList), free_write) }
   def reg_write_hidden(hwrp: HWRegPool) = { reg_fn(hwrp, filter_write_hidden, alloc_write(false), free_write) }
+  def reg_write_hidden_popular(hwrp: HWRegPool) = { reg_fn(hwrp, filter_write_hidden_popular, alloc_write(false), free_write) }
   def reg_write(hwrp: HWRegPool, regs: Reg*) = { reg_fn(hwrp, filter_write_dep(regs.toList), alloc_write_dep(regs.toList), free_write) }
   def reg_write_other(hwrp: HWRegPool, other: Reg, regs: Reg*) = { reg_fn(hwrp, filter_write_dep_other(other, regs.toList), alloc_write_dep(regs.toList), free_write) }
 

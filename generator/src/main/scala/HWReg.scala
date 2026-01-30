@@ -66,11 +66,21 @@ object HWReg
   def filter_read_any = (hwreg: HWReg) => hwreg.readable
   def filter_read_any_other(other: Reg)(hwreg: HWReg) = (hwreg.readable && hwreg.name != other.hwreg.name)
   def filter_read_visible = (hwreg: HWReg) => hwreg.readable && hwreg.is_state(VIS,VIS2VIS)
+  def filter_read_visible_sreg = (hwreg: HWReg) => filter_read_visible(hwreg) && hwreg.sreg
+  def filter_read_popular = (hwreg: HWReg) => hwreg.readable && hwreg.popular
+  def filter_read_visible_popular = (hwreg: HWReg) => filter_read_visible(hwreg) && hwreg.popular
+
   def filter_write_ra = (hwreg: HWReg) => hwreg.name == "x1" && filter_write_visible(hwreg)
   def filter_write_visible = (hwreg: HWReg) => hwreg.writable && hwreg.is_state(VIS,HID)
+  def filter_write_visible_popular = (hwreg: HWReg) => filter_write_visible(hwreg) && hwreg.popular
+  def filter_write_visible_sreg = (hwreg: HWReg) => filter_write_visible(hwreg) && hwreg.sreg
+  def filter_write_visible_other(other: Reg)(hwreg: HWReg) = filter_write_visible(hwreg) && hwreg.name != other.hwreg.name
+  def filter_write_visible_other_sreg(other: Reg)(hwreg: HWReg) = filter_write_visible_other(other)(hwreg) && hwreg.sreg
+
   def filter_write_hidden = (hwreg: HWReg) => hwreg.writable && (hwreg.is_state(HID) || hwreg.is_state(VIS) && hwreg.readers == 0)
-  def filter_write_visible_other(other: Reg)(hwreg: HWReg) = (hwreg.name != other.hwreg.name && hwreg.writable && hwreg.is_state(VIS,HID))
-  def filter_write_hidden_other(other: Reg)(hwreg: HWReg) = (hwreg.name != other.hwreg.name && hwreg.writable && (hwreg.is_state(HID) || hwreg.is_state(VIS) && hwreg.readers == 0))
+  def filter_write_hidden_popular = (hwreg: HWReg) => filter_write_hidden(hwreg) && hwreg.popular
+  def filter_write_hidden_other(other: Reg)(hwreg: HWReg) = filter_write_hidden(hwreg) && hwreg.name != other.hwreg.name
+  def filter_write_hidden_other_sreg(other: Reg)(hwreg: HWReg) = filter_write_hidden_other(other)(hwreg) && hwreg.sreg
   def filter_write_dep(regs: List[Reg]) =
   {
     if (regs.forall(_.hwreg.is_visible)) filter_write_visible
@@ -80,6 +90,11 @@ object HWReg
   {
     if (regs.forall(_.hwreg.is_visible)) filter_write_visible_other(other) _
     else filter_write_hidden_other(other) _
+  }
+  def filter_write_dep_other_sreg(other: Reg, regs: List[Reg]) =
+  {
+    if (regs.forall(_.hwreg.is_visible)) filter_write_visible_other_sreg(other) _
+    else filter_write_hidden_other_sreg(other) _
   }
 
   def alloc_read = (hwreg: HWReg) => hwreg.readers += 1
