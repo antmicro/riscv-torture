@@ -589,6 +589,11 @@ class Prog(memsize: Int, veccfg: Map[String,String], loop : Boolean, use_64bit_o
     for (i <- 0 to nseqs-1)
     	gen_seq()
 
+    if (use_zcmp)
+    {
+      progsegs += SeqCompressed.generate_stack_space()
+    }
+
     if (segment)
       progsegs += ProgSeg()
 

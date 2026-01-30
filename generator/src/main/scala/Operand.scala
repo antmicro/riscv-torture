@@ -47,6 +47,16 @@ class RegImm(base: Reg, imm: Int) extends Operand
   override def toString = imm.toString + "(" + base + ")"
 }
 
+class OpList(regs: Operand*) extends Operand
+{
+  override def toString = "{" + regs.mkString(", ") + "}"
+}
+
+class RegRange(minReg: Operand, maxReg: Operand) extends Operand
+{
+  override def toString = minReg.toString + "-" + maxReg.toString
+}
+
 class RegStrImm(base: Reg, imm: String) extends Operand
 {
   override def toString = imm + "(" + base + ")"
@@ -97,7 +107,6 @@ class AbiReg(base: Reg) extends Operand
     }
   }
 }
-
 
 class Label(val label: String) extends Operand
 {
