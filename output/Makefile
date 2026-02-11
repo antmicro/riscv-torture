@@ -22,9 +22,9 @@ extra_files =
 TOOLCHAIN_PREFIX=riscv64-unknown-elf-
 
 RISCV_GCC = $(TOOLCHAIN_PREFIX)gcc
-RISCV_GCC_OPTS = -nostdlib -nostartfiles -Wa,-march=RVIMAFDVZfh -Wl,-g
+RISCV_GCC_OPTS = -mno-relax -nostdlib -nostartfiles -march=rv32imav_zfh_zba_zbb_zbc_zbs_zcb_zcmp_zcmt -mabi=ilp32f -Wl,-g
 RISCV_OBJDUMP = $(TOOLCHAIN_PREFIX)objdump --disassemble-all --section=.text --section=.data --section=.bss
-RISCV_SIM = spike --extension=hwacha
+RISCV_SIM = spike --isa=RV32imafV_zfh_Zvl512b_Zve64d_Zba_Zbb_Zbc_Zbs_Zca_Zcb_Zcmp_Zcmt
 
 #------------------------------------------------------------
 # Build assembly tests
